@@ -51,14 +51,22 @@ struct SelectView2: View {
             .padding(.horizontal)
 
             // Ingredients added from ChooseView3
-            ScrollView {
-                if ingredients.isEmpty {
-                    Text("Tap + to add an ingredient")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                        .frame(maxWidth: .infinity)
-                        .padding(.top, 40)
-                } else {
+            if ingredients.isEmpty {
+                ContentUnavailableView {
+                    Label("No Ingredients Yet", systemImage: "takeoutbag.and.cup.and.straw")
+                } description: {
+                    Text("Add whatever you want in your studywich!")
+                } actions: {
+                    Button {
+                        showChooseView3 = true
+                    } label: {
+                        Label("Add Ingredient", systemImage: "plus")
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else {
+                ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {
                         ForEach(ingredients) { ingredient in
                             IngredientCell(
@@ -71,8 +79,6 @@ struct SelectView2: View {
                     .padding()
                 }
             }
-            
-            Spacer()
             
             Button {
                 showTimer = true
