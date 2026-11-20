@@ -174,6 +174,13 @@ struct TimerView5: View {
                                 ForEach(droppedIngredients, id: \.id) { ingredient in
                                     ingredientView(for: ingredient)
                                         .offset(y: totalDropOffset(for: ingredient))
+                                        // A newly inserted view has no previous offset to
+                                        // animate from, so the drop is triggered later in
+                                        // tick(). This spring gives it a soft bounce.
+                                        .animation(
+                                            .interpolatingSpring(stiffness: 50, damping: 10),
+                                            value: timers[ingredient.id]?.dropOffset
+                                        )
                                 }
                             }
                         }
@@ -388,12 +395,15 @@ struct TimerView5: View {
         
         guard !finished.isEmpty else { return }
         
-        // Remember the landing order for stacking, then drop every finished
-        // ingredient onto the sandwich — including ones on other tabs
+        // Add them to the sandwich at their starting position first. A view
+        // that appears in the same transaction as the offset change has no
+        // "from" value, so nothing animates — let it render above the screen,
+        // then start the fall on the next run-loop turn.
         droppedOrder.append(contentsOf: finished)
         
-        withAnimation(.interpolatingSpring(stiffness: 45, damping: 11)) {
-            for id in finished {
+        let landingIDs = finished
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
+            for id in landingIDs {
                 timers[id]?.dropOffset = 0
             }
         }
