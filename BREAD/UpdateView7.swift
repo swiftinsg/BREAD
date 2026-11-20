@@ -32,11 +32,18 @@ struct UpdateView7: View {
 
     @AppStorage("streakDays") private var streakDays = 1
     @AppStorage("streakPet") private var streakPet = "potato"
+    /// When the streak was last increased (seconds since 1970).
+    /// Used so finishing the plan more than once in a day only counts once.
+    @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     @State private var bitesTaken = 0
     @State private var isChomping = false
     @State private var hasGulped = false
     @State private var petStatus = "eat"
+    /// Prevents the feeding task from being started twice by repeated onAppear
+    @State private var hasStartedFeeding = false
+    /// Shown when finishing again on a day the streak was already counted
+    @State private var showDailyLimitAlert = false
     var sandwichLeft: CGFloat {
         CGFloat(totalBites - bitesTaken) / CGFloat(totalBites)
     }
@@ -83,12 +90,19 @@ struct UpdateView7: View {
         // Hide the navigation bar so no back arrow shows while feeding
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
-            
             feedThePotato()
+        }
+        .alert("ALERT", isPresented: $showDailyLimitAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Streak increased today.")
         }
     }
 
     func feedThePotato() {
+        guard !hasStartedFeeding else { return }
+        hasStartedFeeding = true
+
         Task {
             for _ in 0..<(totalBites - bitesTaken) {
                 withAnimation(.easeIn(duration: 0.15)) { isChomping = true }
@@ -106,8 +120,19 @@ struct UpdateView7: View {
             petStatus = "happy"
             
 
-            // Finished the sandwich — the streak goes up!
-            streakDays += 1
+            // Finished the sandwich — the streak can only go up once a day,
+            // and resets to 1 if a whole day was missed.
+            let updatedStreak = StreakStore.registerCompletion(
+                currentDays: streakDays,
+                lastIncrease: lastStreakIncrease
+            )
+            streakDays = updatedStreak.days
+            lastStreakIncrease = updatedStreak.lastIncrease
+
+            // Let the user know why the number didn't change
+            if updatedStreak.alreadyCountedToday {
+                showDailyLimitAlert = true
+            }
         }
     }
 

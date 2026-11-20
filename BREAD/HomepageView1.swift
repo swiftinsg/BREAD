@@ -1,12 +1,16 @@
 // homepage
 
 import SwiftUI
+import Foundation
 
 struct StreakPetView: View {
     let potatosize: CGFloat = 200
-    
-    @AppStorage("streakDays") private var streakDays = 1
+
+    @Environment(\.scenePhase) private var scenePhase
+
+    @AppStorage("streakDays") private var streakDays = 0
     @AppStorage("streakPet") private var streakPet = "potato normal"
+    @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     var body: some View {
         NavigationStack {
@@ -43,6 +47,25 @@ struct StreakPetView: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Color.white)
         }
+        .onAppear(perform: refreshStreak)
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                refreshStreak()
+            }
+        }
+        // Fires at midnight (and when the calendar day changes) so the
+        // streak updates in real time even if the app stays open.
+        .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
+            refreshStreak()
+        }
+    }
+
+    /// Resets the streak to 1 if a whole day was missed.
+    private func refreshStreak() {
+        streakDays = StreakStore.daysAfterCheckingForMissedDay(
+            currentDays: streakDays,
+            lastIncrease: lastStreakIncrease
+        )
     }
 }
 
