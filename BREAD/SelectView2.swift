@@ -23,6 +23,33 @@ struct SelectView2: View {
     
     var body: some View {
         VStack {
+            // Buttons live in the view itself, not in the navigation bar, so
+            // they stay visible even if the toolbar/nav bar is hidden.
+            HStack {
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.title3.bold())
+                        .foregroundStyle(.blue)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+
+                Spacer()
+
+                Button {
+                    showChooseView3 = true
+                } label: {
+                    Image(systemName: "plus")
+                        .font(.title3.bold())
+                        .foregroundStyle(.blue)
+                        .frame(width: 44, height: 44)
+                        .contentShape(Rectangle())
+                }
+            }
+            .padding(.horizontal)
+
             // Ingredients added from ChooseView3
             ScrollView {
                 if ingredients.isEmpty {
@@ -66,27 +93,6 @@ struct SelectView2: View {
         }
         .background(Color.white)
         .navigationBarBackButtonHidden(true)
-        .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
-                Button {
-                    dismiss()
-                } label: {
-                    Image(systemName: "chevron.left")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
-                }
-            }
-
-            ToolbarItem(placement: .topBarTrailing) {
-                Button {
-                    showChooseView3 = true
-                } label: {
-                    Image(systemName: "plus")
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.blue)
-                }
-            }
-        }
         .fullScreenCover(isPresented: $showChooseView3) {
             ChooseView3 { ingredient in
                 ingredients.append(ingredient)
