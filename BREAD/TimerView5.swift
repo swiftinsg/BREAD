@@ -37,7 +37,7 @@ struct TimerView5: View {
     /// How far up ingredients land so they sit on top of the bread.
     /// Raised to 100 (about half the ingredient's 150pt frame) so they rest
     /// higher on the slice instead of hanging near the plate
-    let ingredientBaseOffset: CGFloat = 50
+    let ingredientBaseOffset: CGFloat = 70
     
     @Binding private var selectedID: UUID
     /// One countdown per ingredient, so tabs keep their own time.
@@ -160,6 +160,7 @@ struct TimerView5: View {
                             Image("bread up")
                                 .resizable()
                                 .scaledToFit()
+                                .offset(y:10)
                                 .zIndex(1)
                             
                             Image("plate")
@@ -457,7 +458,7 @@ struct TimerView5: View {
             Image(assetName)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 150, height: 150)
+                .frame(width: 200, height: 200)
                 .rotationEffect(.degrees(ingredient.topping.rotated ? 90 : 0))
         } else if let icon = ingredient.topping.icon {
             Text(icon)
