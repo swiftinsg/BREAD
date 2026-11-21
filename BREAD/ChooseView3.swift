@@ -63,8 +63,8 @@ struct ChooseView3: View {
                     dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
-                        .font(.body)
-                        .foregroundStyle(.blue)
+                        .font(.body.weight(.semibold))
+                        .foregroundStyle(.brown)
                         .frame(width: 40, height: 40)
                         .glassEffect(.regular, in: Circle())
                         .overlay {
@@ -259,6 +259,7 @@ struct ToppingDetailSheet: View {
                     .padding(.vertical, 8)
             }
             .buttonStyle(.borderedProminent)
+            .tint(.brown)
             .buttonBorderShape(.capsule)
             .controlSize(.large)
             .disabled(!canAdd)

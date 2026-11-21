@@ -78,7 +78,7 @@ struct TimerView5: View {
                     } label: {
                         Image(systemName: "sidebar.left")
                             .font(.body)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(.brown)
                             .frame(width: 40, height: 40)
                             .background(Color.white, in: Circle())
                             .overlay {
@@ -94,8 +94,8 @@ struct TimerView5: View {
                         dismiss()
                     } label: {
                         Image(systemName: "arrow.left")
-                            .font(.body)
-                            .foregroundStyle(.blue)
+                            .font(.body.weight(.semibold))
+                            .foregroundStyle(.brown)
                             .frame(width: 40, height: 40)
                             .glassEffect(.regular, in: Circle())
                             .overlay {
@@ -202,7 +202,7 @@ struct TimerView5: View {
                                     .font(.title2.bold())
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(selectedState.remaining == 0 ? Color.gray : Color.blue)
+                                    .background(selectedState.remaining == 0 ? Color.gray : Color.brown)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -218,7 +218,7 @@ struct TimerView5: View {
                                     .font(.title2.bold())
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(allTimersFinished ? Color.blue : Color.gray)
+                                    .background(allTimersFinished ? Color.brown : Color.gray)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)

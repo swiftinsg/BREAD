@@ -67,7 +67,7 @@ struct UpdateView7: View {
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 24)
-                    .background(Color.blue)
+                    .background(Color.brown)
                     .cornerRadius(35)
             }
             .padding(.horizontal, 20)
