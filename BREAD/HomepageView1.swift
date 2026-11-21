@@ -36,7 +36,7 @@ struct StreakPetView: View {
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 24)
-                        .background(Color.brown)
+                        .background(Color.blue)
                         .cornerRadius(35)
                 }
                 .padding(.horizontal, 20)

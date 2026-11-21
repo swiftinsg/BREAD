@@ -30,8 +30,8 @@ struct SelectView2: View {
                     dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
-                        .font(.body.weight(.semibold))
-                        .foregroundStyle(.brown)
+                        .font(.body)
+                        .foregroundStyle(.blue)
                         .frame(width: 40, height: 40)
                         .glassEffect(.regular, in: Circle())
                         .overlay {
@@ -50,7 +50,7 @@ struct SelectView2: View {
                         .padding(5)
                         .glassEffect()
                         .font(.title3.bold())
-                        .foregroundStyle(.brown)
+                        .foregroundStyle(.blue)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -86,11 +86,11 @@ struct SelectView2: View {
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 60)
-                    .background(ingredients.isEmpty ? Color.gray : Color.brown)
+                    .background(ingredients.isEmpty ? Color.gray : Color.accentColor)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .overlay {
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(ingredients.isEmpty ? Color.gray : Color.brown, lineWidth: 4)
+                            .strokeBorder(ingredients.isEmpty ? Color.gray : Color.accentColor, lineWidth: 4)
                     }
             }
             .disabled(ingredients.isEmpty)
