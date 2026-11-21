@@ -94,7 +94,7 @@ struct TimerView5: View {
                         dismiss()
                     } label: {
                         Image(systemName: "arrow.left")
-                            .font(.system(size: 17, weight: .semibold))
+                            .font(.title3.bold())
                             .foregroundStyle(.blue)
                             .frame(width: 40, height: 40)
                             .glassEffect(.regular, in: Circle())
