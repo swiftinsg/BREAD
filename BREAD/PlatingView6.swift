@@ -61,7 +61,7 @@ struct PlatingView6: View {
                     }
                     .font(.title2.bold())
                     .buttonStyle(.borderedProminent)
-                    .tint(.orange)
+                    .tint(.brown)
                     .opacity(isFeedButtonVisible ? 1 : 0)
                     .scaleEffect(isFeedButtonVisible ? 1 : 0.8)
                     .disabled(!isFeedButtonVisible)
