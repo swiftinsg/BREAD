@@ -217,7 +217,7 @@ struct ToppingDetailSheet: View {
                             }
                         }
                         .pickerStyle(.wheel)
-                        .frame(width: 50, height: 80)
+                        .frame(width: 45, height: 80)
                         .clipped()
 
                         Text("m")

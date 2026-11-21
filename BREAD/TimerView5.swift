@@ -73,23 +73,16 @@ struct TimerView5: View {
                             isTabsExpanded.toggle()
                         }
                     } label: {
-                        HStack(spacing: 6) {
-                            Image(systemName: isTabsExpanded ? "chevron.left" : "list.bullet")
-                                .font(.footnote.bold())
-                            
-                            Text("\(ingredients.count)")
-                                .font(.footnote.bold())
-                                .monospacedDigit()
-                        }
-                        .foregroundStyle(.blue)
-                        .padding(.horizontal, 14)
-                        .frame(height: 40)
-                        .background(Color.white, in: Capsule())
-                        .overlay {
-                            Capsule()
-                                .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
-                        }
-                        .contentShape(Capsule())
+                        Image(systemName: "sidebar.left")
+                            .font(.body)
+                            .foregroundStyle(.blue)
+                            .frame(width: 40, height: 40)
+                            .background(Color.white, in: Circle())
+                            .overlay {
+                                Circle()
+                                    .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
+                            }
+                            .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
                     
