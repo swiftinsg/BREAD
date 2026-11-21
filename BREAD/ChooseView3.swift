@@ -63,11 +63,15 @@ struct ChooseView3: View {
                     dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
-                        .padding(5)
-                        .glassEffect()
-                        .font(.title3.bold())
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                        .font(.body)
+                        .foregroundStyle(.blue)
+                        .frame(width: 40, height: 40)
+                        .glassEffect(.regular, in: Circle())
+                        .overlay {
+                            Circle()
+                                .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
+                        }
+                        .contentShape(Circle())
                 }
                 
                 Spacer()

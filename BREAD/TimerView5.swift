@@ -91,10 +91,10 @@ struct TimerView5: View {
                         dismiss()
                     } label: {
                         Image(systemName: "arrow.left")
-                            .font(.body.bold())
+                            .font(.body)
                             .foregroundStyle(.blue)
                             .frame(width: 40, height: 40)
-                            .background(Color.white, in: Circle())
+                            .glassEffect(.regular, in: Circle())
                             .overlay {
                                 Circle()
                                     .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)

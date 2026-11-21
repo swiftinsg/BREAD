@@ -29,13 +29,16 @@ struct SelectView2: View {
                 Button {
                     dismiss()
                 } label: {
-                    Image(systemName: "chevron.left")
-                        .padding(5)
-                        .glassEffect()
-                        .font(.title3.bold())
+                    Image(systemName: "arrow.left")
+                        .font(.body)
                         .foregroundStyle(.blue)
-                        .frame(width: 44, height: 44)
-                        .contentShape(Rectangle())
+                        .frame(width: 40, height: 40)
+                        .glassEffect(.regular, in: Circle())
+                        .overlay {
+                            Circle()
+                                .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
+                        }
+                        .contentShape(Circle())
                 }
 
                 Spacer()
