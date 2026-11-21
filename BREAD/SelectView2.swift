@@ -86,11 +86,11 @@ struct SelectView2: View {
                     .font(.title2.bold())
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity, minHeight: 60)
-                    .background(ingredients.isEmpty ? Color.gray : Color.brown)
+                    .background(ingredients.isEmpty ? Color.gray : Color.breadBrown)
                     .clipShape(RoundedRectangle(cornerRadius: 16))
                     .overlay {
                         RoundedRectangle(cornerRadius: 16)
-                            .strokeBorder(ingredients.isEmpty ? Color.gray : Color.brown, lineWidth: 4)
+                            .strokeBorder(ingredients.isEmpty ? Color.gray : Color.breadBrown, lineWidth: 4)
                     }
             }
             .disabled(ingredients.isEmpty)

@@ -202,7 +202,7 @@ struct TimerView5: View {
                                     .font(.title2.bold())
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(selectedState.remaining == 0 ? Color.gray : Color.brown)
+                                    .background(selectedState.remaining == 0 ? Color.gray : Color.breadBrown)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
@@ -218,16 +218,16 @@ struct TimerView5: View {
                                     .font(.title2.bold())
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(allTimersFinished ? Color.brown : Color.gray)
+                                    .background(allTimersFinished ? Color.breadBrown : Color.gray)
                                     .clipShape(Capsule())
                             }
                             .buttonStyle(.plain)
                             .disabled(!allTimersFinished)
                         }
                         .font(.title2)
-                        .foregroundColor(.brown)
+                        .foregroundColor(Color.breadBrown)
                         .buttonStyle(.bordered)
-                        .tint(.brown)
+                        .tint(Color.breadBrown)
                         
                         Spacer()
                     }
