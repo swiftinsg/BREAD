@@ -60,7 +60,7 @@ struct StreakPetView: View {
         }
     }
 
-    /// Resets the streak to 1 if a whole day was missed.
+    /// Resets the streak to 0 if a whole day was missed.
     private func refreshStreak() {
         streakDays = StreakStore.daysAfterCheckingForMissedDay(
             currentDays: streakDays,

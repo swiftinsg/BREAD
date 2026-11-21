@@ -9,7 +9,7 @@ import Foundation
 
 /// Keeps the streak honest:
 /// - it can only go up once per calendar day, and
-/// - it drops back to 1 once a whole day passes without finishing a plan.
+/// - it drops back to 0 once a whole day passes without finishing a plan.
 enum StreakStore {
     /// What happened when a plan was finished.
     struct Completion {
@@ -33,7 +33,7 @@ enum StreakStore {
     }
 
     /// Call when the homepage appears: if a whole day was missed, reset the
-    /// streak to 1. Otherwise leave it alone.
+    /// streak to 0. Otherwise leave it alone.
     static func daysAfterCheckingForMissedDay(
         currentDays: Int,
         lastIncrease: Double,
@@ -41,7 +41,7 @@ enum StreakStore {
         calendar: Calendar = .current
     ) -> Int {
         guard lastIncrease > 0 else { return currentDays }
-        return dayGap(from: lastIncrease, to: now, calendar: calendar) > 1 ? 1 : currentDays
+        return dayGap(from: lastIncrease, to: now, calendar: calendar) > 1 ? 0 : currentDays
     }
 
     /// Call when a plan is finished.
