@@ -30,7 +30,7 @@ struct SelectView2: View {
                     dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
-                        .font(.body)
+                        .font(.system(size: 17, weight: .semibold))
                         .foregroundStyle(.blue)
                         .frame(width: 40, height: 40)
                         .glassEffect(.regular, in: Circle())
