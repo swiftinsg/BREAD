@@ -119,6 +119,8 @@ struct ChooseView3: View {
                 .padding()
             }
         }
+        // Keep this full-screen picker light even when the device is in dark mode.
+        .preferredColorScheme(.light)
         .sheet(item: $selectedTopping, onDismiss: {
             // After the sheet closes, also close the picker to return to SelectView2
             if shouldDismissAfterSheet {
