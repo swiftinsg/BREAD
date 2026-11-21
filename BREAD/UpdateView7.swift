@@ -30,7 +30,7 @@ struct UpdateView7: View {
     // Supplied by SelectView2 so Done can return all the way to HomepageView1
     @Environment(\.finishPlan) private var finishPlan
 
-    @AppStorage("streakDays") private var streakDays = 1
+    @AppStorage("streakDays") private var streakDays = 0
     @AppStorage("streakPet") private var streakPet = "potato"
     /// When the streak was last increased (seconds since 1970).
     /// Used so finishing the plan more than once in a day only counts once.
