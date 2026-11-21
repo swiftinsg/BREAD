@@ -34,10 +34,6 @@ struct TimerView5: View {
     let breadOverlap: CGFloat = 140
     /// How far the bottom bread drops onto the plate so they overlap
     let breadPlateOverlap: CGFloat = 30
-    /// How far up ingredients land so they sit on top of the bread.
-    /// Raised to 100 (about half the ingredient's 150pt frame) so they rest
-    /// higher on the slice instead of hanging near the plate
-    let ingredientBaseOffset: CGFloat = 70
     
     @Binding private var selectedID: UUID
     /// One countdown per ingredient, so tabs keep their own time.
@@ -154,7 +150,7 @@ struct TimerView5: View {
                         Spacer()
                         
                         // Bread stack from PlatingView6 — finished ingredients
-                        // drop onto the plate and stack up
+                        // drop onto the bread and stack up
                         VStack(spacing: -120) {
                             
                             Image("bread up")
@@ -162,6 +158,30 @@ struct TimerView5: View {
                                 .scaledToFit()
                                 .offset(y:10)
                                 .zIndex(1)
+                                // Landed ingredients are overlaid on the bread
+                                // itself, not on the whole bread + plate stack.
+                                // The overlay is centred on the bread and
+                                // resizes with it, so folding/unfolding the tab
+                                // strip (which changes the column width) can no
+                                // longer push the ingredients off the bread.
+                                .overlay {
+                                    GeometryReader { geo in
+                                        ZStack {
+                                            ForEach(droppedIngredients, id: \.id) { ingredient in
+                                                ingredientView(for: ingredient)
+                                                    .offset(y: totalDropOffset(for: ingredient))
+                                                    // A newly inserted view has no previous offset to
+                                                    // animate from, so the drop is triggered later in
+                                                    // tick(). This spring gives it a soft bounce.
+                                                    .animation(
+                                                        .interpolatingSpring(stiffness: 50, damping: 10),
+                                                        value: timers[ingredient.id]?.dropOffset
+                                                    )
+                                            }
+                                        }
+                                        .frame(width: geo.size.width, height: geo.size.height)
+                                    }
+                                }
                             
                             Image("plate")
                                 .resizable()
@@ -169,22 +189,6 @@ struct TimerView5: View {
                                 .zIndex(0)
                         }
                         .frame(maxWidth: .infinity)
-                        .overlay(alignment: .bottom) {
-                            // Every finished ingredient lands here, stacked
-                            ZStack {
-                                ForEach(droppedIngredients, id: \.id) { ingredient in
-                                    ingredientView(for: ingredient)
-                                        .offset(y: totalDropOffset(for: ingredient))
-                                        // A newly inserted view has no previous offset to
-                                        // animate from, so the drop is triggered later in
-                                        // tick(). This spring gives it a soft bounce.
-                                        .animation(
-                                            .interpolatingSpring(stiffness: 50, damping: 10),
-                                            value: timers[ingredient.id]?.dropOffset
-                                        )
-                                }
-                            }
-                        }
                         
                         VStack(spacing: 14) {
                             
@@ -446,9 +450,12 @@ struct TimerView5: View {
         return -CGFloat(index) * stackSpacing
     }
     
-    /// Drop animation (from above) plus the ingredient's stacking position
+    /// Drop animation (from above) plus the ingredient's stacking position.
+    /// Measured from the centre of the bread slice, because the ingredients
+    /// are centred inside the bread's overlay. A dropOffset of 0 therefore
+    /// lands the ingredient squarely on the bread at any width.
     private func totalDropOffset(for ingredient: PlanIngredient) -> CGFloat {
-        (timers[ingredient.id]?.dropOffset ?? 0) + stackOffset(for: ingredient) - ingredientBaseOffset
+        (timers[ingredient.id]?.dropOffset ?? 0) + stackOffset(for: ingredient)
     }
     
     /// One ingredient's artwork, using the "s" plating asset where there is one
