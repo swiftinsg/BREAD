@@ -30,6 +30,8 @@ struct SelectView2: View {
                     dismiss()
                 } label: {
                     Image(systemName: "chevron.left")
+                        .padding(5)
+                        .glassEffect()
                         .font(.title3.bold())
                         .foregroundStyle(.blue)
                         .frame(width: 44, height: 44)
@@ -42,6 +44,8 @@ struct SelectView2: View {
                     showChooseView3 = true
                 } label: {
                     Image(systemName: "plus")
+                        .padding(5)
+                        .glassEffect()
                         .font(.title3.bold())
                         .foregroundStyle(.blue)
                         .frame(width: 44, height: 44)
@@ -55,16 +59,8 @@ struct SelectView2: View {
                 ContentUnavailableView {
                     Label("No Ingredients Yet", systemImage: "takeoutbag.and.cup.and.straw")
                 } description: {
-                    Text("Add whatever you want in your studywich!")
-                } actions: {
-                    Button {
-                        showChooseView3 = true
-                    } label: {
-                        Label("Add Ingredient", systemImage: "plus")
-                    }
-                    .buttonStyle(.borderedProminent)
+                    Text("Click the + button to add ingredients in your studywich!")
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 ScrollView {
                     LazyVGrid(columns: columns, spacing: 16) {

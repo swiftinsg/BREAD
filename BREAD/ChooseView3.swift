@@ -63,6 +63,8 @@ struct ChooseView3: View {
                     dismiss()
                 } label: {
                     Image(systemName: "arrow.left")
+                        .padding(5)
+                        .glassEffect()
                         .font(.title3.bold())
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
