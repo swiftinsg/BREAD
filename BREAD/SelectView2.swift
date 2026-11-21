@@ -116,13 +116,13 @@ struct SelectView2: View {
                     get: { selectedIngredientID ?? ingredients.first?.id ?? UUID() },
                     set: { selectedIngredientID = $0 }
                 ),
+                onFinishPlan: {
+                    shouldReturnHome = true
+                    showTimer = false
+                },
                 timers: $timerState,
                 droppedOrder: $droppedOrder
             )
-            .environment(\.finishPlan) {
-                shouldReturnHome = true
-                showTimer = false
-            }
         }
         .sheet(item: $selectedIngredient) { ingredient in
             // Bind straight into the array so edits show up in the grid instantly

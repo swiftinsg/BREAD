@@ -8,27 +8,13 @@
 import SwiftUI
 import UIKit
 
-/// Lets a view deep inside the plan flow return to the homepage.
-/// SelectView2 provides the action; UpdateView7 calls it from Done.
-private struct FinishPlanKey: EnvironmentKey {
-    static var defaultValue: () -> Void { {} }
-}
-
-extension EnvironmentValues {
-    var finishPlan: () -> Void {
-        get { self[FinishPlanKey.self] }
-        set { self[FinishPlanKey.self] = newValue }
-    }
-}
-
 struct UpdateView7: View {
     let petSize: CGFloat = 200
     let sandwichSize: CGFloat = 100
     let totalBites = 4
     var ingredients: [PlanIngredient] = []
 
-    // Supplied by SelectView2 so Done can return all the way to HomepageView1
-    @Environment(\.finishPlan) private var finishPlan
+    let onDone: () -> Void
 
     @AppStorage("streakDays") private var streakDays = 0
     @AppStorage("streakPet") private var streakPet = "potato"
@@ -74,7 +60,7 @@ struct UpdateView7: View {
 
             // Same blue pill styling as the "Start Plan" button on HomepageView1
             Button {
-                finishPlan()
+                onDone()
             } label: {
                 Text("Done")
                     .font(.title3)
@@ -185,5 +171,5 @@ struct UpdateView7: View {
 }
 
 #Preview {
-    UpdateView7()
+    UpdateView7(onDone: {})
 }

@@ -10,6 +10,7 @@ import UIKit
 
 struct PlatingView6: View {
     var ingredients: [PlanIngredient] = []
+    let onDone: () -> Void
 
     @State private var topBreadOffset: CGFloat = -500
     @State private var isFeedButtonVisible = false
@@ -18,7 +19,7 @@ struct PlatingView6: View {
     var body: some View {
         ZStack {
             if isFeeding {
-                UpdateView7(ingredients: ingredients)
+                UpdateView7(ingredients: ingredients, onDone: onDone)
                     .transition(.opacity)
             } else {
                 VStack(spacing: -40) {
@@ -125,5 +126,5 @@ struct PlatingView6: View {
                        name: "Tomato", hours: 0, minutes: 1),
         PlanIngredient(topping: Topping(name: "Mayo", assetName: "mayo i"),
                        name: "Mayo", hours: 1, minutes: 0),
-    ])
+    ], onDone: {})
 }

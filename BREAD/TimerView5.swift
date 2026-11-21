@@ -24,6 +24,7 @@ struct TimerView5: View {
     
     // Every ingredient added in SelectView2 — one tab each
     var ingredients: [PlanIngredient]
+    let onFinishPlan: () -> Void
     
     // PlatingView6 uses 100; scaled down here so the buttons still fit
     let emojiSize: CGFloat = 80
@@ -52,10 +53,12 @@ struct TimerView5: View {
     init(
         ingredients: [PlanIngredient],
         selectedID: Binding<UUID>,
+        onFinishPlan: @escaping () -> Void,
         timers: Binding<[UUID: IngredientTimer]>,
         droppedOrder: Binding<[UUID]>
     ) {
         self.ingredients = ingredients
+        self.onFinishPlan = onFinishPlan
         _selectedID = selectedID
         _timers = timers
         _droppedOrder = droppedOrder
@@ -235,7 +238,7 @@ struct TimerView5: View {
             .background(Color.white)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showPlating) {
-                PlatingView6(ingredients: droppedIngredients)
+                PlatingView6(ingredients: droppedIngredients, onDone: onFinishPlan)
             }
             .onReceive(timer) { _ in
                 tick()
@@ -496,6 +499,7 @@ struct TimerView5: View {
                            name: "Turkey", hours: 0, minutes: 30)
         ],
         selectedID: .constant(UUID()),
+        onFinishPlan: {},
         timers: .constant([:]),
         droppedOrder: .constant([])
     )
