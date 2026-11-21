@@ -26,13 +26,18 @@ struct StreakPetView: View {
                 .frame(maxWidth: .infinity)
                 .frame(height: 450)
 
-                Text("🔥\(streakDays)")
-                    .font(.system(size: 48, weight: .medium))
+                Text("I'm hungry...")
+                    .font(.system(size: 24, weight: .medium))
+                    .foregroundColor(.black)
+                    .offset(y: -112)
+
+                Text("🔥\(streakDays) Days")
+                    .font(.system(size: 40, weight: .medium))
                     .foregroundColor(.black)
 
                 NavigationLink(destination: SelectView2()) {
                     Text("Start Plan")
-                        .font(.title3)
+                        .font(.title2.bold())
                         .foregroundColor(.white)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, 24)
@@ -40,6 +45,10 @@ struct StreakPetView: View {
                         .cornerRadius(35)
                 }
                 .padding(.horizontal, 20)
+
+                Text("Study to get ingredients and feed Mr Potato!")
+                    .font(.system(size: 15, weight: .medium))
+                    .foregroundColor(.gray)
 
                 Spacer()
             }
@@ -72,6 +81,8 @@ struct StreakPetView: View {
 #Preview {
     StreakPetView()
 }
+
+
 
 
 
