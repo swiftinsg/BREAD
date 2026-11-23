@@ -12,49 +12,85 @@ struct StreakPetView: View {
     @AppStorage("streakPet") private var streakPet = "potato normal"
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
+    private var streakLabel: String {
+        streakDays == 1 ? "0 day streak" : "\(streakDays) day streak"
+    }
+
     var body: some View {
         NavigationStack {
-            VStack(spacing: 16) {
+            VStack(spacing: 0) {
+                // Brand
+                VStack(spacing: 2) {
+                    Text("Studywich")
+                        .font(.system(size: 34, weight: .heavy, design: .rounded))
+                        .foregroundStyle(BreadTheme.text)
+                }
+                .padding(.top, 8)
 
+                Spacer(minLength: 12)
+
+                // Pet with a soft ground shadow so it doesn't float
                 ZStack {
+                    Ellipse()
+                        .fill(Color.black.opacity(0.08))
+                        .frame(width: 220, height: 34)
+                        .blur(radius: 12)
+                        .offset(y: 112)
+
                     Image("\(streakPet)")
                         .resizable()
                         .scaledToFit()
-                        .frame(width: 400, height: 1000)
-                        .offset(x: 30)
+                        .offset(x:20)
+                        .shadow(color: .black.opacity(0.08), radius: 18, x: 0, y: 10)
                 }
                 .frame(maxWidth: .infinity)
-                .frame(height: 450)
+                .accessibilityLabel("Your streak pet")
 
                 Text("I'm hungry...")
-                    .font(.system(size: 24, weight: .medium))
-                    .foregroundColor(.black)
-                    .offset(y: -112)
+                    .font(.system(.subheadline, design: .rounded).weight(.medium))
+                    .foregroundStyle(BreadTheme.secondaryText)
+                    .padding(.top, 2)
 
-                Text("🔥\(streakDays) Days")
-                    .font(.system(size: 40, weight: .medium))
-                    .foregroundColor(.black)
+                // Streak badge — glass so it matches the buttons
+                HStack(spacing: 8) {
+                    Text("🔥")
+                    Text(streakLabel)
+                }
+                .font(.system(.headline, design: .rounded).weight(.semibold))
+                .foregroundStyle(BreadTheme.text)
+                .padding(.horizontal, 20)
+                .padding(.vertical, 11)
+                .glassEffect(
+                    .regular
+                        .tint(BreadTheme.accent.opacity(0.12))
+                        .interactive(),
+                    in: Capsule()
+                )
+                .padding(.top, 12)
+
+                Spacer(minLength: 12)
 
                 NavigationLink(destination: SelectView2()) {
-                    Text("Start Plan")
-                        .font(.title2.bold())
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 24)
-                        .background(Color.breadBrown)
-                        .cornerRadius(35)
+                    HStack(spacing: 8) {
+                        Text("Start Plan")
+                        Image(systemName: "arrow.right")
+                            .font(.headline.weight(.bold))
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .padding(.horizontal, 20)
+                .buttonStyle(BreadPrimaryButtonStyle())
 
                 Text("Study to get ingredients and feed Mr Potato!")
-                    .font(.system(size: 15, weight: .medium))
-                    .foregroundColor(.gray)
-
-                Spacer()
+                    .font(.footnote.weight(.medium))
+                    .foregroundStyle(BreadTheme.secondaryText)
+                    .padding(.top, 10)
+                    .padding(.bottom, 8)
             }
-            .padding()
+            .padding(.horizontal, 20)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.white)
+            .breadBackground()
+            .fontDesign(.rounded)
+            .tint(BreadTheme.accent)
         }
         .onAppear(perform: refreshStreak)
         .onChange(of: scenePhase) { _, newPhase in
@@ -81,11 +117,3 @@ struct StreakPetView: View {
 #Preview {
     StreakPetView()
 }
-
-
-
-
-
-
-
-//

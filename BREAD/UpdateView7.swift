@@ -26,6 +26,16 @@ struct UpdateView7: View {
     @State private var isChomping = false
     @State private var hasGulped = false
     @State private var petStatus = "eat"
+    /// Small head wiggle while chewing
+    @State private var chompRotation: Double = 0
+    /// Tiny pop on the sandwich with every bite
+    @State private var sandwichPop = false
+    /// "Nom!" bubble that flashes near the pet
+    @State private var showNom = false
+    /// Happy hop after the last bite
+    @State private var happyHop = false
+    /// Streak pill bounce when it updates
+    @State private var badgePulse = false
     /// Prevents the feeding task from being started twice by repeated onAppear
     @State private var hasStartedFeeding = false
     /// Shown when finishing again on a day the streak was already counted
@@ -35,44 +45,97 @@ struct UpdateView7: View {
     }
 
     var body: some View {
-        VStack {
-            HStack {
+        VStack(spacing: 20) {
+            Text(petStatus == "happy" ? "Yum!" : (showNom ? "Nom nom nom..." : "Enjoy!"))
+                .font(.system(size: 30, weight: .heavy, design: .rounded))
+                .foregroundStyle(BreadTheme.text)
+                .scaleEffect(petStatus == "happy" ? 1.08 : 1)
+                .animation(.spring(response: 0.35, dampingFraction: 0.5), value: petStatus)
+                .animation(.easeOut(duration: 0.15), value: showNom)
+
+            HStack(spacing: 12) {
                 Image("\(streakPet) \(petStatus)")
                     .resizable()
                     .scaledToFit()
-                    .font(.system(size: petSize))
+                    .frame(maxWidth: .infinity)
                     .scaleEffect(x: isChomping ? 1.15 : 1,
                                  y: isChomping ? 0.75 : 1,
                                  anchor: .bottom)
+                    .rotationEffect(.degrees(chompRotation))
                     .scaleEffect(hasGulped ? 1.15 : 1)
                     .offset(x: isChomping ? 14 : 0)
+                    .offset(y: happyHop ? -14 : 0)
+                    .animation(.interpolatingSpring(stiffness: 200, damping: 9), value: happyHop)
+                    .overlay(alignment: .topTrailing) {
+
+                        
+                    }
                 
                 sandwichStack
                     .frame(width: sandwichSize, height: sandwichSize)
+                    .scaleEffect(sandwichPop ? 1.08 : 1)
+                    .animation(.spring(response: 0.22, dampingFraction: 0.45), value: sandwichPop)
                     .mask {
                         Rectangle()
                             .scaleEffect(x: sandwichLeft, anchor: .trailing)
                     }
                     .offset(x: -67 * CGFloat(bitesTaken))
             }
-            Text("🔥 \(streakDays)")
-                .font(.largeTitle)
+            .padding(20)
+            .breadCard(cornerRadius: 28)
+            .overlay(alignment: .top) {
+                Text("Nom!")
+                    .font(.system(.headline, design: .rounded).weight(.heavy))
+                    .foregroundStyle(BreadTheme.accentDeep)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .glassEffect(
+                        .regular.tint(BreadTheme.accent.opacity(0.18)),
+                        in: Capsule()
+                    )
+                    .offset(x: 44, y: -14)
+                    .scaleEffect(showNom ? 1 : 0.4)
+                    .opacity(showNom ? 1 : 0)
+                    .animation(.spring(response: 0.24, dampingFraction: 0.55), value: showNom)
+            }
 
-            // Same blue pill styling as the "Start Plan" button on HomepageView1
+            HStack(spacing: 8) {
+                Text("🔥")
+                Text(streakDays == 1 ? "1 day streak" : "\(streakDays) day streak")
+            }
+            .font(.system(.headline, design: .rounded).weight(.semibold))
+            .foregroundStyle(BreadTheme.text)
+            .padding(.horizontal, 18)
+            .padding(.vertical, 10)
+            .glassEffect(
+                .regular
+                    .tint(BreadTheme.accent.opacity(0.12))
+                    .interactive(),
+                in: Capsule()
+            )
+            .scaleEffect(badgePulse ? 1.12 : 1)
+            .animation(.spring(response: 0.32, dampingFraction: 0.45), value: badgePulse)
+
+            Spacer(minLength: 0)
+
+            // Same glass pill styling as the "Start Plan" button on HomepageView1
             Button {
                 onDone()
             } label: {
-                Text("Done")
-                    .font(.title3)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 24)
-                    .background(Color.breadBrown)
-                    .cornerRadius(35)
+                HStack(spacing: 8) {
+                    Text("Done")
+                    Image(systemName: "checkmark")
+                        .font(.headline.weight(.bold))
+                }
+                .frame(maxWidth: .infinity)
             }
-            .padding(.horizontal, 20)
-            .padding(.top, 16)
+            .buttonStyle(BreadPrimaryButtonStyle())
         }
+        .padding(20)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .breadBackground()
+        .fontDesign(.rounded)
+        .tint(BreadTheme.accent)
         // Hide the navigation bar so no back arrow shows while feeding
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -90,20 +153,61 @@ struct UpdateView7: View {
         hasStartedFeeding = true
 
         Task {
-            for _ in 0..<(totalBites - bitesTaken) {
-                withAnimation(.easeIn(duration: 0.15)) { isChomping = true }
-                try? await Task.sleep(for: .milliseconds(150))
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
-                    bitesTaken += 1
+            let remainingBites = totalBites - bitesTaken
+            let chompHaptic = UIImpactFeedbackGenerator(style: .soft)
+            chompHaptic.prepare()
+
+            for bite in 0..<remainingBites {
+                // Lean in, open wide, and show the "Nom!" bubble
+                withAnimation(.easeOut(duration: 0.12)) {
+                    isChomping = true
+                    chompRotation = bite.isMultiple(of: 2) ? -4 : 4
+                    showNom = true
                 }
-                withAnimation(.easeOut(duration: 0.15)) { isChomping = false }
-                try? await Task.sleep(for: .milliseconds(400))
+                chompHaptic.impactOccurred(intensity: 0.8)
+                try? await Task.sleep(for: .milliseconds(120))
+
+                // Chomp: take the bite, pop the sandwich, then spring back
+                withAnimation(.spring(response: 0.26, dampingFraction: 0.5)) {
+                    bitesTaken += 1
+                    sandwichPop = true
+                }
+                try? await Task.sleep(for: .milliseconds(90))
+
+                withAnimation(.easeOut(duration: 0.14)) {
+                    isChomping = false
+                    chompRotation = 0
+                    showNom = false
+                    sandwichPop = false
+                }
+                try? await Task.sleep(for: .milliseconds(330))
             }
 
-            withAnimation(.interpolatingSpring(stiffness: 120, damping: 6)) {
+            // Gulp and switch to the happy pose
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+            withAnimation(.interpolatingSpring(stiffness: 150, damping: 7)) {
                 hasGulped = true
+                petStatus = "happy"
             }
-            petStatus = "happy"
+
+            // Streak pill bounces
+            withAnimation(.spring(response: 0.32, dampingFraction: 0.45)) {
+                badgePulse = true
+            }
+
+            // Two happy little hops
+            try? await Task.sleep(for: .milliseconds(140))
+            withAnimation(.interpolatingSpring(stiffness: 220, damping: 9)) { happyHop = true }
+            try? await Task.sleep(for: .milliseconds(170))
+            withAnimation(.interpolatingSpring(stiffness: 220, damping: 9)) { happyHop = false }
+            try? await Task.sleep(for: .milliseconds(120))
+            withAnimation(.interpolatingSpring(stiffness: 220, damping: 9)) { happyHop = true }
+            try? await Task.sleep(for: .milliseconds(150))
+            withAnimation(.interpolatingSpring(stiffness: 220, damping: 9)) { happyHop = false }
+
+            withAnimation(.spring(response: 0.35, dampingFraction: 0.7)) {
+                badgePulse = false
+            }
             
 
             // Finished the sandwich — the streak can only go up once a day,

@@ -54,23 +54,32 @@ struct PlatingView6: View {
                     }
                     .padding(24)
 
-                    Button("FEED!") {
+                    Button {
                         withAnimation(.easeInOut(duration: 0.3)) {
                             isFeeding = true
                         }
+                    } label: {
+                        HStack(spacing: 8) {
+                            Image(systemName: "fork.knife")
+                            Text("FEED!")
+                        }
+                        .frame(maxWidth: .infinity)
                     }
-                    .font(.title2.bold())
-                    .buttonStyle(.borderedProminent)
-                    .tint(Color.breadBrown)
+                    .buttonStyle(BreadPrimaryButtonStyle())
                     .opacity(isFeedButtonVisible ? 1 : 0)
                     .scaleEffect(isFeedButtonVisible ? 1 : 0.8)
                     .disabled(!isFeedButtonVisible)
+                    .padding(.horizontal, 24)
+                    .padding(.bottom, 24)
                 }
                 .transition(.opacity)
             }
         }
         // Hide the navigation bar so no back arrow shows over the plate
         .toolbar(.hidden, for: .navigationBar)
+        .fontDesign(.rounded)
+        .background(BreadAmbientBackground())
+        .tint(BreadTheme.accent)
         .onAppear {
             withAnimation(.interpolatingSpring(stiffness: 40, damping: 10).delay(0.3)) {
                 topBreadOffset = 0

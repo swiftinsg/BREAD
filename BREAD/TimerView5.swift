@@ -78,13 +78,9 @@ struct TimerView5: View {
                     } label: {
                         Image(systemName: "sidebar.left")
                             .font(.body)
-                            .foregroundStyle(.blue)
+                            .foregroundStyle(BreadTheme.accentDeep)
                             .frame(width: 40, height: 40)
-                            .background(Color.white, in: Circle())
-                            .overlay {
-                                Circle()
-                                    .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
-                            }
+                            .glassEffect(.regular.interactive(), in: Circle())
                             .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
@@ -94,14 +90,10 @@ struct TimerView5: View {
                         dismiss()
                     } label: {
                         Image(systemName: "arrow.left")
-                            .font(.title3.bold())
-                            .foregroundStyle(.blue)
+                            .font(.body.bold())
+                            .foregroundStyle(BreadTheme.accentDeep)
                             .frame(width: 40, height: 40)
-                            .glassEffect(.regular, in: Circle())
-                            .overlay {
-                                Circle()
-                                    .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
-                            }
+                            .glassEffect(.regular.interactive(), in: Circle())
                             .contentShape(Circle())
                     }
                     .buttonStyle(.plain)
@@ -135,10 +127,18 @@ struct TimerView5: View {
                                                     
                                                     timeUnit(seconds, label: "sec")
                                                 }
-                                                .foregroundStyle(Color.black)
+                                                .foregroundStyle(BreadTheme.text)
                                                 .frame(maxWidth: .infinity)
                                                 .frame(height: 106)
-                                                .background(Color.white, in: RoundedRectangle(cornerRadius: 20, style: .continuous))
+                                                .background(
+                                                    BreadTheme.surface,
+                                                    in: RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                                )
+                                                .overlay {
+                                                    RoundedRectangle(cornerRadius: 22, style: .continuous)
+                                                        .strokeBorder(BreadTheme.stroke, lineWidth: 1)
+                                                }
+                                                .shadow(color: .black.opacity(0.05), radius: 12, x: 0, y: 4)
                                                 
                                                 .padding(.horizontal, 4)
                         
@@ -202,8 +202,18 @@ struct TimerView5: View {
                                     .font(.title2.bold())
                                     .foregroundStyle(.white)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(selectedState.remaining == 0 ? Color.gray : Color.breadBrown)
-                                    .clipShape(Capsule())
+                                    .glassEffect(
+                                        selectedState.remaining == 0
+                                            ? Glass.regular.tint(BreadTheme.muted).interactive()
+                                            : Glass.regular.tint(BreadTheme.accent).interactive(),
+                                        in: Capsule()
+                                    )
+                                    .shadow(
+                                        color: selectedState.remaining == 0 ? .clear : BreadTheme.accentDeep.opacity(0.22),
+                                        radius: 10,
+                                        x: 0,
+                                        y: 5
+                                    )
                             }
                             .buttonStyle(.plain)
                             .disabled(selectedState.remaining == 0 || anotherTimerRunning)
@@ -216,18 +226,25 @@ struct TimerView5: View {
                             } label: {
                                 Text("Complete")
                                     .font(.title2.bold())
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(allTimersFinished ? Color.white : BreadTheme.secondaryText)
                                     .frame(maxWidth: .infinity, minHeight: 64)
-                                    .background(allTimersFinished ? Color.breadBrown : Color.gray)
-                                    .clipShape(Capsule())
+                                    .glassEffect(
+                                        allTimersFinished
+                                            ? Glass.regular.tint(BreadTheme.success).interactive()
+                                            : Glass.regular.tint(BreadTheme.muted).interactive(),
+                                        in: Capsule()
+                                    )
+                                    .shadow(
+                                        color: allTimersFinished ? BreadTheme.success.opacity(0.3) : .clear,
+                                        radius: 10,
+                                        x: 0,
+                                        y: 5
+                                    )
                             }
                             .buttonStyle(.plain)
                             .disabled(!allTimersFinished)
                         }
                         .font(.title2)
-                        .foregroundColor(Color.breadBrown)
-                        .buttonStyle(.bordered)
-                        .tint(Color.breadBrown)
                         
                         Spacer()
                     }
@@ -235,7 +252,9 @@ struct TimerView5: View {
             }
             .padding()
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(Color.white)
+            .background(BreadAmbientBackground())
+            .fontDesign(.rounded)
+            .tint(BreadTheme.accent)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showPlating) {
                 PlatingView6(ingredients: droppedIngredients, onDone: onFinishPlan)
@@ -272,19 +291,23 @@ struct TimerView5: View {
             VStack(spacing: 5) {
                 tabImage(for: ingredient)
                     .frame(width: 54, height: 54)
-                    .background(Color.white, in: RoundedRectangle(cornerRadius: 14, style: .continuous))
+                    .background(
+                        isSelected ? BreadTheme.accentSoft : BreadTheme.surface,
+                        in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    )
                     .overlay {
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
                             .strokeBorder(
-                                isSelected ? Color.gray : Color.gray.opacity(0.4),
+                                isSelected ? BreadTheme.accent : BreadTheme.stroke,
                                 lineWidth: isSelected ? 2 : 1
                             )
                     }
+                    .shadow(color: .black.opacity(0.05), radius: 4, x: 0, y: 2)
                 
                 Text(shortTime(currentState.remaining))
                     .font(.caption2.weight(isSelected ? .semibold : .regular))
                     .monospacedDigit()
-                    .foregroundStyle(Color.gray)
+                    .foregroundStyle(isSelected ? BreadTheme.accentDeep : BreadTheme.secondaryText)
             }
             .padding(2)
         }
@@ -395,6 +418,13 @@ struct TimerView5: View {
         }
         
         guard !finished.isEmpty else { return }
+        
+        // Satisfying haptic when a timer finishes
+        if allTimersFinished {
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        } else {
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        }
         
         // Add them to the sandwich at their starting position first. A view
         // that appears in the same transaction as the offset change has no

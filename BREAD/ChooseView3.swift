@@ -59,26 +59,23 @@ struct ChooseView3: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Button {
+                CircleIconButton(systemName: "arrow.left") {
                     dismiss()
-                } label: {
-                    Image(systemName: "arrow.left")
-                        .font(.title3.bold())
-                        .foregroundStyle(.blue)
-                        .frame(width: 40, height: 40)
-                        .glassEffect(.regular, in: Circle())
-                        .overlay {
-                            Circle()
-                                .strokeBorder(Color.gray.opacity(0.4), lineWidth: 1)
-                        }
-                        .contentShape(Circle())
                 }
                 
                 Spacer()
             }
             .padding(.horizontal)
             .padding(.top)
-            
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Pick your toppings")
+                    .font(.system(size: 30, weight: .heavy, design: .rounded))
+                    .foregroundStyle(BreadTheme.text)
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(.horizontal)
+
             // 2-by-2 grid of toppings
             ScrollView {
                 LazyVGrid(columns: [
@@ -92,7 +89,7 @@ struct ChooseView3: View {
                             VStack(spacing: 8) {
                                 // Square image with a curved border
                                 Rectangle()
-                                    .fill(Color.white)
+                                    .fill(BreadTheme.surface)
                                     .aspectRatio(1, contentMode: .fit)
                                     .overlay {
                                         if let assetName = topping.assetName {
@@ -107,16 +104,17 @@ struct ChooseView3: View {
                                                 .rotationEffect(.degrees(topping.rotated ? 90 : 0))
                                         }
                                     }
-                                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                                    .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
                                     .overlay {
-                                        RoundedRectangle(cornerRadius: 16)
-                                            .strokeBorder(Color.secondary.opacity(0.5), lineWidth: 2)
+                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                            .strokeBorder(BreadTheme.stroke, lineWidth: 1)
                                     }
+                                    .shadow(color: .black.opacity(0.06), radius: 10, x: 0, y: 4)
                                 
                                 Text(topping.name)
                                     .font(.subheadline)
                                     .multilineTextAlignment(.center)
-                                    .foregroundStyle(.primary)
+                                    .foregroundStyle(BreadTheme.text)
                             }
                         }
                         .buttonStyle(.plain)
@@ -125,6 +123,9 @@ struct ChooseView3: View {
                 .padding()
             }
         }
+        .background(BreadAmbientBackground())
+        .fontDesign(.rounded)
+        .tint(BreadTheme.accent)
         // Keep this full-screen picker light even when the device is in dark mode.
         .preferredColorScheme(.light)
         .sheet(item: $selectedTopping, onDismiss: {
@@ -190,12 +191,20 @@ struct ToppingDetailSheet: View {
                     TextField(
                         "",
                         text: $nameInput,
-                        prompt: Text("type here").foregroundStyle(.gray)
+                        prompt: Text("type here").foregroundStyle(BreadTheme.secondaryText)
                     )
+                    .font(.body.weight(.medium))
+                    .foregroundStyle(BreadTheme.text)
                     .padding(.horizontal, 12)
-                    .padding(.vertical, 10)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .padding(.vertical, 12)
+                    .background(
+                        BreadTheme.field,
+                        in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    )
+                    .overlay {
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .strokeBorder(BreadTheme.stroke, lineWidth: 1)
+                    }
 
                     // Native iOS Duration Picker (h : m)
                     HStack(spacing: 4) {
@@ -231,8 +240,10 @@ struct ToppingDetailSheet: View {
                             .foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 10)
-                    .background(Color(.secondarySystemBackground))
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    .background(
+                        BreadTheme.field,
+                        in: RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    )
                 }
                 .frame(maxWidth: .infinity)
             }
@@ -240,7 +251,7 @@ struct ToppingDetailSheet: View {
 
             Spacer()
 
-            // Native Apple prominent pill button
+            // Primary glass pill, same as the rest of the app
             Button {
                 let trimmedName = nameInput.trimmingCharacters(in: .whitespacesAndNewlines)
                 let ingredient = PlanIngredient(
@@ -254,13 +265,9 @@ struct ToppingDetailSheet: View {
                 dismiss()
             } label: {
                 Text("Add")
-                    .font(.headline)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
             }
-            .buttonStyle(.borderedProminent)
-            .buttonBorderShape(.capsule)
-            .controlSize(.large)
+            .buttonStyle(BreadPrimaryButtonStyle(enabled: canAdd))
             .disabled(!canAdd)
             .padding(.horizontal)
             .padding(.bottom, 16)
