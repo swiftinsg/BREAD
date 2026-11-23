@@ -30,8 +30,6 @@ struct UpdateView7: View {
     @State private var chompRotation: Double = 0
     /// Tiny pop on the sandwich with every bite
     @State private var sandwichPop = false
-    /// "Nom!" bubble that flashes near the pet
-    @State private var showNom = false
     /// Happy hop after the last bite
     @State private var happyHop = false
     /// Streak pill bounce when it updates
@@ -46,14 +44,13 @@ struct UpdateView7: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Spacer(minLength: 0)
 
-            Text(petStatus == "happy" ? "Yum!" : (showNom ? "Nom nom nom..." : "Enjoy!"))
+            Text(petStatus == "happy" ? "Yum!" : (hasStartedFeeding ? "Nom nom nom..." : "Enjoy!"))
+
                 .font(.system(size: 30, weight: .heavy, design: .rounded))
                 .foregroundStyle(BreadTheme.text)
                 .scaleEffect(petStatus == "happy" ? 1.08 : 1)
                 .animation(.spring(response: 0.35, dampingFraction: 0.5), value: petStatus)
-                .animation(.easeOut(duration: 0.15), value: showNom)
 
             HStack(spacing: 12) {
                 Image("\(streakPet) \(petStatus)")
@@ -84,22 +81,7 @@ struct UpdateView7: View {
                     .offset(x: -67 * CGFloat(bitesTaken))
             }
             .padding(20)
-            .breadCard(cornerRadius: 28)
-            .overlay(alignment: .top) {
-                Text("Nom!")
-                    .font(.system(.headline, design: .rounded).weight(.heavy))
-                    .foregroundStyle(BreadTheme.accentDeep)
-                    .padding(.horizontal, 12)
-                    .padding(.vertical, 6)
-                    .glassEffect(
-                        .regular.tint(BreadTheme.accent.opacity(0.18)),
-                        in: Capsule()
-                    )
-                    .offset(x: 44, y: -14)
-                    .scaleEffect(showNom ? 1 : 0.4)
-                    .opacity(showNom ? 1 : 0)
-                    .animation(.spring(response: 0.24, dampingFraction: 0.55), value: showNom)
-            }
+            
 
             HStack(spacing: 8) {
                 Text("🔥")
@@ -107,14 +89,6 @@ struct UpdateView7: View {
             }
             .font(.system(.headline, design: .rounded).weight(.semibold))
             .foregroundStyle(BreadTheme.text)
-            .padding(.horizontal, 18)
-            .padding(.vertical, 10)
-            .glassEffect(
-                .regular
-                    .tint(BreadTheme.accent.opacity(0.12))
-                    .interactive(),
-                in: Capsule()
-            )
             .scaleEffect(badgePulse ? 1.12 : 1)
             .animation(.spring(response: 0.32, dampingFraction: 0.45), value: badgePulse)
 
@@ -164,7 +138,6 @@ struct UpdateView7: View {
                 withAnimation(.easeOut(duration: 0.12)) {
                     isChomping = true
                     chompRotation = bite.isMultiple(of: 2) ? -4 : 4
-                    showNom = true
                 }
                 chompHaptic.impactOccurred(intensity: 0.8)
                 try? await Task.sleep(for: .milliseconds(120))
@@ -179,7 +152,6 @@ struct UpdateView7: View {
                 withAnimation(.easeOut(duration: 0.14)) {
                     isChomping = false
                     chompRotation = 0
-                    showNom = false
                     sandwichPop = false
                 }
                 try? await Task.sleep(for: .milliseconds(330))

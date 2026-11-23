@@ -51,21 +51,13 @@ struct StreakPetView: View {
                     .foregroundStyle(BreadTheme.secondaryText)
                     .padding(.top, 2)
 
-                // Streak badge — glass so it matches the buttons
+                // Streak badge — plain text so it stays light on white
                 HStack(spacing: 8) {
                     Text("🔥")
                     Text(streakLabel)
                 }
                 .font(.system(.headline, design: .rounded).weight(.semibold))
                 .foregroundStyle(BreadTheme.text)
-                .padding(.horizontal, 20)
-                .padding(.vertical, 11)
-                .glassEffect(
-                    .regular
-                        .tint(BreadTheme.accent.opacity(0.12))
-                        .interactive(),
-                    in: Capsule()
-                )
                 .padding(.top, 12)
 
                 Spacer(minLength: 12)
