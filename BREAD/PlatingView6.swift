@@ -61,7 +61,7 @@ struct PlatingView6: View {
                     } label: {
                         HStack(spacing: 8) {
                             Image(systemName: "fork.knife")
-                            Text("FEED!")
+                            Text("Feed!")
                         }
                         .frame(maxWidth: .infinity)
                     }

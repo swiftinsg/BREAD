@@ -65,7 +65,7 @@ struct SelectView2: View {
             } label: {
                 HStack(spacing: 8) {
                     Image(systemName: "play.fill")
-                    Text("START")
+                    Text("Start")
                 }
                 .font(.system(.headline, design: .rounded).weight(.semibold))
                 .frame(maxWidth: .infinity)

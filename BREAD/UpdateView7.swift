@@ -46,6 +46,8 @@ struct UpdateView7: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            Spacer(minLength: 0)
+
             Text(petStatus == "happy" ? "Yum!" : (showNom ? "Nom nom nom..." : "Enjoy!"))
                 .font(.system(size: 30, weight: .heavy, design: .rounded))
                 .foregroundStyle(BreadTheme.text)
@@ -142,7 +144,7 @@ struct UpdateView7: View {
             feedThePotato()
         }
         .alert("ALERT", isPresented: $showDailyLimitAlert) {
-            Button("OK", role: .cancel) { }
+            Button("Okay", role: .cancel) { }
         } message: {
             Text("Streak increased today.")
         }
