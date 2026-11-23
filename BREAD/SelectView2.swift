@@ -262,7 +262,7 @@ struct IngredientDetailSheet: View {
             .frame(maxWidth: .infinity)
         }
         .padding(24)
-        .presentationBackground(.white)
+        .presentationBackground(BreadTheme.surface)
         .presentationDetents([.fraction(0.4), .medium])
         .presentationDragIndicator(.visible)
     }

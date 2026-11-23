@@ -126,8 +126,6 @@ struct ChooseView3: View {
         .background(BreadAmbientBackground())
         .fontDesign(.rounded)
         .tint(BreadTheme.accent)
-        // Keep this full-screen picker light even when the device is in dark mode.
-        .preferredColorScheme(.light)
         .sheet(item: $selectedTopping, onDismiss: {
             // After the sheet closes, also close the picker to return to SelectView2
             if shouldDismissAfterSheet {
@@ -272,7 +270,7 @@ struct ToppingDetailSheet: View {
             .padding(.horizontal)
             .padding(.bottom, 16)
         }
-        .presentationBackground(.white)
+        .presentationBackground(BreadTheme.surface)
         .presentationDetents([.fraction(0.45), .medium])
         .presentationDragIndicator(.visible)
     }

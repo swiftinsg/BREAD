@@ -47,7 +47,10 @@ struct TimerView5: View {
     @State private var isTabsExpanded = true
     // Pushes PlatingView6 once the timer is marked complete
     @State private var showPlating = false
+    @State private var showBreakReminder = false
+    @State private var uninterruptedStudySeconds = 0
     
+    private let breakReminderInterval = 1800
     let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
     
     init(
@@ -194,6 +197,7 @@ struct TimerView5: View {
                             Button {
                                 if selectedState.isRunning {
                                     updateSelected { $0.isRunning = false }
+                                    uninterruptedStudySeconds = 0
                                 } else if !anotherTimerRunning {
                                     startSelected()
                                 }
@@ -261,6 +265,11 @@ struct TimerView5: View {
             }
             .onReceive(timer) { _ in
                 tick()
+            }
+            .alert("Time for a break?", isPresented: $showBreakReminder) {
+                Button("Got it", role: .cancel) { }
+            } message: {
+                Text("You’ve been studying for 30 minutes. Take a short break and stretch.")
             }
         }
     }
@@ -415,6 +424,16 @@ struct TimerView5: View {
             }
             
             timers[ingredient.id] = state
+        }
+        
+        if anyTimerRunning {
+            uninterruptedStudySeconds += 1
+            if uninterruptedStudySeconds >= breakReminderInterval {
+                uninterruptedStudySeconds = 0
+                showBreakReminder = true
+            }
+        } else {
+            uninterruptedStudySeconds = 0
         }
         
         guard !finished.isEmpty else { return }

@@ -2,50 +2,61 @@
 //  Theme.swift
 //  BREAD
 //
-//  Clean white base with warm accents, plus shared card and glass styling
-//  so every screen feels like one app.
+//  Adaptive system surfaces with warm accents and shared glass styling.
 //
 
 import SwiftUI
+import UIKit
 
 enum BreadTheme {
-    /// White page background
-    static let background = Color.white
-    /// Cards, sheets and raised surfaces
-    static let surface = Color.white
-    /// Slightly grey fill for text fields sitting on white
-    static let field = Color(red: 0.96, green: 0.96, blue: 0.97)
-    /// Near-black — primary text
-    static let text = Color(red: 0.10, green: 0.10, blue: 0.12)
-    /// Grey — captions and labels
-    static let secondaryText = Color(red: 0.42, green: 0.42, blue: 0.46)
-    /// Warm coral — primary buttons and highlights
+    /// Semantic system colors adapt automatically to light and dark appearance.
+    static let background = Color(uiColor: .systemBackground)
+    static let surface = Color(uiColor: .secondarySystemBackground)
+    static let field = Color(uiColor: .tertiarySystemBackground)
+    static let text = Color(uiColor: .label)
+    static let secondaryText = Color(uiColor: .secondaryLabel)
+    static let stroke = Color(uiColor: .separator)
+
+    /// Warm coral — primary buttons and highlights.
     static let accent = Color(red: 0.95, green: 0.42, blue: 0.18)
-    /// Deeper coral for text on soft accents and button shadows
-    static let accentDeep = Color(red: 0.76, green: 0.28, blue: 0.08)
-    /// Pale peach for badges and selected states
-    static let accentSoft = Color(red: 1.00, green: 0.93, blue: 0.88)
-    /// Hairline card outlines
-    static let stroke = Color(red: 0.90, green: 0.90, blue: 0.92)
-    /// Disabled controls
-    static let muted = Color(red: 0.78, green: 0.78, blue: 0.80)
-    /// Ready / success green
-    static let success = Color(red: 0.22, green: 0.62, blue: 0.38)
+    /// Deeper coral in light mode and a brighter coral in dark mode.
+    static let accentDeep = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 1.00, green: 0.62, blue: 0.38, alpha: 1)
+            : UIColor(red: 0.76, green: 0.28, blue: 0.08, alpha: 1)
+    })
+    /// Selected-state fill tuned for each appearance.
+    static let accentSoft = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.30, green: 0.17, blue: 0.12, alpha: 1)
+            : UIColor(red: 1.00, green: 0.93, blue: 0.88, alpha: 1)
+    })
+    static let muted = Color(uiColor: .systemGray3)
+    static let success = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 0.35, green: 0.78, blue: 0.48, alpha: 1)
+            : UIColor(red: 0.18, green: 0.52, blue: 0.31, alpha: 1)
+    })
 }
 
-/// White canvas with a few very soft warm glows. Keeps the app white while
-/// giving the Liquid Glass controls something to refract.
+/// System-adaptive canvas with subtle warm glows behind Liquid Glass controls.
 struct BreadAmbientBackground: View {
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var glowOpacity: Double {
+        colorScheme == .dark ? 0.04 : 0.12
+    }
+
     var body: some View {
         ZStack {
-            Color.white
+            BreadTheme.background
 
             GeometryReader { proxy in
                 Circle()
                     .fill(Color(red: 1.00, green: 0.72, blue: 0.50))
                     .frame(width: proxy.size.width)
                     .blur(radius: 110)
-                    .opacity(0.12)
+                    .opacity(glowOpacity)
                     .offset(
                         x: -proxy.size.width * 0.5,
                         y: -proxy.size.height * 0.48
@@ -55,7 +66,7 @@ struct BreadAmbientBackground: View {
                     .fill(Color(red: 1.00, green: 0.84, blue: 0.64))
                     .frame(width: proxy.size.width * 0.9)
                     .blur(radius: 120)
-                    .opacity(0.12)
+                    .opacity(glowOpacity)
                     .offset(
                         x: proxy.size.width * 0.55,
                         y: proxy.size.height * 0.02
@@ -65,7 +76,7 @@ struct BreadAmbientBackground: View {
                     .fill(Color(red: 0.99, green: 0.66, blue: 0.56))
                     .frame(width: proxy.size.width * 0.7)
                     .blur(radius: 130)
-                    .opacity(0.07)
+                    .opacity(glowOpacity * 0.6)
                     .offset(
                         x: -proxy.size.width * 0.2,
                         y: proxy.size.height * 0.62
@@ -91,7 +102,7 @@ private struct BreadCardModifier: ViewModifier {
             )
             .overlay {
                 RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
-                    .strokeBorder(Color.black.opacity(0.06), lineWidth: 1)
+                    .strokeBorder(BreadTheme.stroke.opacity(0.7), lineWidth: 1)
             }
             .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 6)
     }
@@ -102,7 +113,7 @@ extension View {
         modifier(BreadCardModifier(cornerRadius: cornerRadius, padding: padding))
     }
 
-    /// White page background used on every screen.
+    /// Adaptive page background used on every screen.
     func breadBackground() -> some View {
         background(BreadAmbientBackground())
     }
