@@ -115,7 +115,7 @@ struct StreakPetView: View {
                 } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "chart.bar.fill")
-                        Text("Analytics")
+                        Text("Sandwich History")
                     }
                     .frame(maxWidth: .infinity)
                 }
@@ -422,7 +422,7 @@ struct AnalyticsView: View {
                     .padding()
                 }
             }
-            .navigationTitle("Analytics")
+            .navigationTitle("Sandwich History")
             .breadBackground()
             .fontDesign(.rounded)
             .tint(BreadTheme.accent)
