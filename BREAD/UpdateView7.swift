@@ -127,8 +127,8 @@ struct UpdateView7: View {
         .onDisappear {
             eatingSoundPlayer?.stop()
         }
-        .alert("ALERT", isPresented: $showDailyLimitAlert) {
-            Button("Okay", role: .cancel) { }
+        .alert("", isPresented: $showDailyLimitAlert) {
+            Button("Okay") { }
         } message: {
             Text("Streak already increased today.")
         }
