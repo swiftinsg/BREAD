@@ -99,6 +99,14 @@ struct StreakPetView: View {
 
     /// Resets the streak to 0 if a whole day was missed.
     private func refreshStreak() {
+        // Re-read from UserDefaults so a just-finished plan's new streak
+        // is reflected even if @AppStorage hasn't propagated yet.
+        if let storedDays = UserDefaults.standard.object(forKey: "streakDays") as? Int {
+            streakDays = storedDays
+        }
+        if let storedIncrease = UserDefaults.standard.object(forKey: "lastStreakIncrease") as? Double {
+            lastStreakIncrease = storedIncrease
+        }
         streakDays = StreakStore.daysAfterCheckingForMissedDay(
             currentDays: streakDays,
             lastIncrease: lastStreakIncrease
