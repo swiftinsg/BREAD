@@ -189,7 +189,7 @@ struct ToppingDetailSheet: View {
                     TextField(
                         "",
                         text: $nameInput,
-                        prompt: Text("type here").foregroundStyle(BreadTheme.secondaryText)
+                        prompt: Text("What are we working on today?").foregroundStyle(BreadTheme.secondaryText)
                     )
                     .font(.body.weight(.medium))
                     .foregroundStyle(BreadTheme.text)
@@ -233,7 +233,7 @@ struct ToppingDetailSheet: View {
                         .frame(width: 45, height: 80)
                         .clipped()
 
-                        Text("m")
+                        Text("min")
                             .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                     }

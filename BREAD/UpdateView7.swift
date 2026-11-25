@@ -48,6 +48,7 @@ struct UpdateView7: View {
 
     var body: some View {
         VStack(spacing: 20) {
+            Spacer(minLength: 0)
 
             Text(petStatus == "happy" ? "Yum!" : (hasStartedFeeding ? "Nom nom nom..." : "Enjoy!"))
 
@@ -60,7 +61,7 @@ struct UpdateView7: View {
                 Image("\(streakPet) \(petStatus)")
                     .resizable()
                     .scaledToFit()
-                    .frame(maxWidth: .infinity)
+                    .frame(width: petSize, height: petSize)
                     .scaleEffect(x: isChomping ? 1.15 : 1,
                                  y: isChomping ? 0.75 : 1,
                                  anchor: .bottom)
