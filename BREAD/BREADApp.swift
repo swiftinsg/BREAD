@@ -16,10 +16,8 @@ struct BREADApp: App {
     var body: some Scene {
         WindowGroup {
             // Launch into the homepage; "Start Plan" pushes the ingredient grid
-            // Force light appearance everywhere, regardless of the system setting.
             StreakPetView()
                 .tint(BreadTheme.accent)
-                .preferredColorScheme(.light)
         }
     }
 }
