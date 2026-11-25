@@ -1,7 +1,7 @@
 // homepage
 
 import SwiftUI
-import Foundation
+import UIKit
 
 struct StreakPetView: View {
     let potatosize: CGFloat = 200
@@ -12,8 +12,25 @@ struct StreakPetView: View {
     @AppStorage("streakPet") private var streakPet = "potato normal"
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
+    // Petting state
+    @State private var isTouching = false
+    @State private var isPetting = false
+    @State private var pageTouchPoint: CGPoint = .zero
+    @State private var hearts: [HeartParticle] = []
+    @State private var lastHapticTime: TimeInterval = 0
+    @State private var lastHapticPoint: CGPoint = .zero
+    @State private var isSquishing = false
+    @State private var feedback = UIImpactFeedbackGenerator(style: .light)
+
     private var streakLabel: String {
         streakDays == 1 ? "1 day streak" : "\(streakDays) day streak"
+    }
+
+    /// The existing assets are named `potato normal` / `potato happy`, while
+    /// other views use `potato` as the base name. Fall back so either works.
+    private var happyPetImageName: String {
+        let candidate = streakPet == "potato" ? "potato happy" : "\(streakPet) happy"
+        return UIImage(named: candidate) != nil ? candidate : "potato happy"
     }
 
     var body: some View {
@@ -30,20 +47,48 @@ struct StreakPetView: View {
                 Spacer(minLength: 12)
 
                 // Pet with a soft ground shadow so it doesn't float
-                ZStack {
-                    Ellipse()
-                        .fill(Color.black.opacity(0.08))
-                        .frame(width: 220, height: 34)
-                        .blur(radius: 12)
-                        .offset(y: 112)
+                GeometryReader { geo in
+                    ZStack {
+                        Ellipse()
+                            .fill(Color.black.opacity(0.08))
+                            .frame(width: 220, height: 34)
+                            .blur(radius: 12)
+                            .offset(y: 112)
 
-                    Image("\(streakPet)")
-                        .resizable()
-                        .scaledToFit()
-                        .offset(x:20)
-                        .shadow(color: .black.opacity(0.08), radius: 18, x: 0, y: 10)
+                        Image(isPetting ? happyPetImageName : "\(streakPet)")
+                            .resizable()
+                            .scaledToFit()
+                            .offset(x: 20)
+                            .shadow(color: .black.opacity(0.08), radius: 18, x: 0, y: 10)
+                            .scaleEffect(x: isSquishing ? 1.06 : 1,
+                                         y: isSquishing ? 0.94 : 1)
+                            .animation(.spring(response: 0.24, dampingFraction: 0.5),
+                                       value: isSquishing)
+
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .gesture(
+                                DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                                    .onChanged { value in
+                                        handlePet(at: value.location, in: geo.size)
+                                    }
+                                    .onEnded { _ in
+                                        isPetting = false
+                                    }
+                            )
+                            .overlay {
+                                ForEach(hearts) { heart in
+                                    FloatingHeartView(heart: heart) { finishedID in
+                                        withAnimation(.easeOut(duration: 0.15)) {
+                                            hearts.removeAll { $0.id == finishedID }
+                                        }
+                                    }
+                                }
+                            }
+                    }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
+                .frame(height: 260)
                 .accessibilityLabel("Your streak pet")
 
                 Text("I'm hungry...")
@@ -83,8 +128,29 @@ struct StreakPetView: View {
             .breadBackground()
             .fontDesign(.rounded)
             .tint(BreadTheme.accent)
+            // Track the finger across the whole page so the hand follows it
+            // even outside the potato area.
+            .simultaneousGesture(
+                DragGesture(minimumDistance: 0, coordinateSpace: .local)
+                    .onChanged { value in
+                        isTouching = true
+                        pageTouchPoint = value.location
+                    }
+                    .onEnded { _ in
+                        isTouching = false
+                        isPetting = false
+                    }
+            )
+            .overlay {
+                if isTouching {
+                    PetHandView(point: pageTouchPoint)
+                }
+            }
         }
-        .onAppear(perform: refreshStreak)
+        .onAppear {
+            feedback.prepare()
+            refreshStreak()
+        }
         .onChange(of: scenePhase) { _, newPhase in
             if newPhase == .active {
                 refreshStreak()
@@ -94,6 +160,79 @@ struct StreakPetView: View {
         // streak updates in real time even if the app stays open.
         .onReceive(NotificationCenter.default.publisher(for: .NSCalendarDayChanged)) { _ in
             refreshStreak()
+        }
+    }
+
+    /// Petting area is a generous oval around the potato — a near miss counts.
+    private func handlePet(at point: CGPoint, in size: CGSize) {
+        let center = CGPoint(x: size.width / 2 + 20, y: size.height / 2)
+        let dx = (point.x - center.x) / 165
+        let dy = (point.y - center.y) / 115
+
+        guard dx * dx + dy * dy <= 1 else {
+            isPetting = false
+            return
+        }
+
+        if !isPetting {
+            isPetting = true
+            pet(in: size)
+            return
+        }
+
+        // Throttle haptics so a drag feels like gentle strokes, not a buzz.
+        let moved = hypot(point.x - lastHapticPoint.x,
+                          point.y - lastHapticPoint.y)
+        let now = Date().timeIntervalSince1970
+        if moved >= 28 || now - lastHapticTime >= 0.22 {
+            lastHapticPoint = point
+            pet(in: size)
+        }
+    }
+
+    private func pet(in size: CGSize) {
+        lastHapticTime = Date().timeIntervalSince1970
+
+        feedback.impactOccurred()
+        feedback.prepare()
+
+        // Hearts escape from around the potato like warm air, not from
+        // the finger position.
+        spawnHearts(in: size)
+
+        withAnimation(.spring(response: 0.18, dampingFraction: 0.5)) {
+            isSquishing = true
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.11) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
+                isSquishing = false
+            }
+        }
+    }
+
+    private func spawnHearts(in size: CGSize) {
+        let center = CGPoint(x: size.width / 2 + 20, y: size.height / 2)
+        let colors: [Color] = [.pink, .red, Color(red: 1, green: 0.55, blue: 0.65)]
+
+        for _ in 0..<3 {
+            let angle = CGFloat.random(in: 0...(2 * CGFloat.pi))
+            let radius = CGFloat.random(in: 50...95)
+            let start = CGPoint(x: center.x + cos(angle) * radius,
+                                y: center.y + sin(angle) * radius * 0.65)
+            let outward = CGFloat.random(in: 26...66)
+
+            hearts.append(HeartParticle(
+                start: start,
+                dx: cos(angle) * outward + CGFloat.random(in: -10...10),
+                dy: -CGFloat.random(in: 80...140) + sin(angle) * outward * 0.2,
+                size: CGFloat.random(in: 11...19),
+                color: colors.randomElement() ?? .pink,
+                rotation: Double.random(in: -22...22)
+            ))
+        }
+
+        if hearts.count > 36 {
+            hearts.removeFirst(hearts.count - 36)
         }
     }
 
@@ -111,6 +250,132 @@ struct StreakPetView: View {
             currentDays: streakDays,
             lastIncrease: lastStreakIncrease
         )
+    }
+}
+
+// MARK: - Original code-drawn petting visuals (no image assets)
+
+private struct HeartParticle: Identifiable {
+    let id = UUID()
+    let start: CGPoint
+    let dx: CGFloat
+    let dy: CGFloat
+    let size: CGFloat
+    let color: Color
+    let rotation: Double
+}
+
+/// A simple heart path drawn from scratch — no SF Symbol or artwork.
+private struct HeartShape: Shape {
+    func path(in rect: CGRect) -> Path {
+        let w = rect.width
+        let h = rect.height
+        var path = Path()
+
+        path.move(to: CGPoint(x: w / 2, y: h))
+        path.addCurve(to: CGPoint(x: 0, y: h * 0.36),
+                      control1: CGPoint(x: w * 0.05, y: h * 0.74),
+                      control2: CGPoint(x: 0, y: h * 0.55))
+        path.addCurve(to: CGPoint(x: w / 2, y: h * 0.2),
+                      control1: CGPoint(x: 0, y: h * 0.1),
+                      control2: CGPoint(x: w * 0.25, y: h * 0.05))
+        path.addCurve(to: CGPoint(x: w, y: h * 0.36),
+                      control1: CGPoint(x: w * 0.75, y: h * 0.05),
+                      control2: CGPoint(x: w, y: h * 0.1))
+        path.addCurve(to: CGPoint(x: w / 2, y: h),
+                      control1: CGPoint(x: w, y: h * 0.55),
+                      control2: CGPoint(x: w * 0.95, y: h * 0.74))
+        return path
+    }
+}
+
+private struct FloatingHeartView: View {
+    let heart: HeartParticle
+    let onFinished: (UUID) -> Void
+
+    @State private var progress: CGFloat = 0
+    @State private var isLeaving = false
+
+    var body: some View {
+        HeartShape()
+            .fill(heart.color)
+            .frame(width: heart.size, height: heart.size)
+            .shadow(color: heart.color.opacity(0.35), radius: 4, y: 2)
+            .rotationEffect(.degrees(heart.rotation * progress))
+            .scaleEffect(0.6 + 0.6 * progress)
+            // Keep the heart visible from the moment it appears. Fading is a
+            // separate step, so it still shows when preview animations are
+            // paused or Reduce Motion is on.
+            .opacity(isLeaving ? 0 : 0.95)
+            .position(x: heart.start.x + heart.dx * progress,
+                      y: heart.start.y + heart.dy * progress)
+            .allowsHitTesting(false)
+            .onAppear {
+                withAnimation(.easeOut(duration: 1.0)) {
+                    progress = 1
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        isLeaving = true
+                    }
+                }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.15) {
+                    onFinished(heart.id)
+                }
+            }
+    }
+}
+
+/// An original open hand drawn with SwiftUI shapes. The fingertips sit at
+/// the touch point so the hand tracks the finger.
+private struct PetHandView: View {
+    let point: CGPoint
+
+    private var skin: LinearGradient {
+        LinearGradient(
+            colors: [Color(red: 1.0, green: 0.88, blue: 0.75),
+                     Color(red: 0.96, green: 0.72, blue: 0.55)],
+            startPoint: .top,
+            endPoint: .bottom
+        )
+    }
+
+    private let fingers: [(x: CGFloat, height: CGFloat)] = [
+        (-11, 26), (-4, 31), (4, 30), (11, 25)
+    ]
+
+    var body: some View {
+        ZStack {
+            Circle()
+                .fill(Color.white.opacity(0.55))
+                .frame(width: 22, height: 22)
+                .overlay(Circle().stroke(Color.pink.opacity(0.5), lineWidth: 1.5))
+                .position(x: point.x, y: point.y)
+
+            ZStack(alignment: .bottom) {
+                RoundedRectangle(cornerRadius: 9)
+                    .fill(skin)
+                    .frame(width: 30, height: 25)
+                    .offset(y: -2)
+
+                ForEach(fingers, id: \.x) { finger in
+                    Capsule()
+                        .fill(skin)
+                        .frame(width: 7, height: finger.height)
+                        .offset(x: finger.x, y: -22)
+                }
+
+                Capsule()
+                    .fill(skin)
+                    .frame(width: 8, height: 20)
+                    .rotationEffect(.degrees(-55))
+                    .offset(x: -17, y: -14)
+            }
+            .frame(width: 46, height: 56)
+            .shadow(color: .black.opacity(0.2), radius: 4, y: 2)
+            .position(x: point.x, y: point.y + 25)
+        }
+        .allowsHitTesting(false)
     }
 }
 
