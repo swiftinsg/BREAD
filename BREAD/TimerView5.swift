@@ -442,7 +442,7 @@ struct TimerView5: View {
         if allTimersFinished {
             UINotificationFeedbackGenerator().notificationOccurred(.success)
         } else {
-            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
         }
         
         // Add them to the sandwich at their starting position first. A view

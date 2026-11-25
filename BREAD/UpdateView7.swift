@@ -165,7 +165,7 @@ struct UpdateView7: View {
 
         Task {
             let remainingBites = totalBites - bitesTaken
-            let chompHaptic = UIImpactFeedbackGenerator(style: .soft)
+            let chompHaptic = UIImpactFeedbackGenerator(style: .medium)
             chompHaptic.prepare()
 
             for bite in 0..<remainingBites {
@@ -174,7 +174,7 @@ struct UpdateView7: View {
                     isChomping = true
                     chompRotation = bite.isMultiple(of: 2) ? -4 : 4
                 }
-                chompHaptic.impactOccurred(intensity: 0.8)
+                chompHaptic.impactOccurred(intensity: min(1.0, 0.45 + 0.18 * Double(bite)))
                 try? await Task.sleep(for: .milliseconds(120))
 
                 // Play the sound as the first bite lands.
