@@ -36,6 +36,8 @@ struct UpdateView7: View {
     @State private var badgePulse = false
     /// Prevents the feeding task from being started twice by repeated onAppear
     @State private var hasStartedFeeding = false
+    /// True once the streak has actually been updated, so Done can't be tapped early
+    @State private var streakUpdated = false
     /// Shown when finishing again on a day the streak was already counted
     @State private var showDailyLimitAlert = false
     var sandwichLeft: CGFloat {
@@ -106,6 +108,8 @@ struct UpdateView7: View {
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(BreadPrimaryButtonStyle())
+            .disabled(!streakUpdated)
+            .opacity(streakUpdated ? 1 : 0.4)
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -192,6 +196,7 @@ struct UpdateView7: View {
             )
             streakDays = updatedStreak.days
             lastStreakIncrease = updatedStreak.lastIncrease
+            streakUpdated = true
 
             // Let the user know why the number didn't change
             if updatedStreak.alreadyCountedToday {
