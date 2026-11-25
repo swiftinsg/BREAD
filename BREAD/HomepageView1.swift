@@ -118,7 +118,7 @@ struct StreakPetView: View {
                     .frame(maxWidth: .infinity)
                 }
 //                .buttonStyle(BreadPrimaryButtonStyle())
-                .tint(.black)
+                .tint(.orange)
                 
                 .padding()
                 
