@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Topping: Identifiable {
+struct Topping: Identifiable, Codable {
     let name: String
     var icon: String? = nil
     var assetName: String? = nil
@@ -16,7 +16,7 @@ struct Topping: Identifiable {
 }
 
 /// An ingredient the user added to a plan, with their own name and study time.
-struct PlanIngredient: Identifiable {
+struct PlanIngredient: Identifiable, Codable {
     let id = UUID()
     let topping: Topping
     var name: String
