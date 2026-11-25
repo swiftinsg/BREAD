@@ -13,9 +13,8 @@ struct StreakPetView: View {
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     // Petting state
-    @State private var isTouching = false
     @State private var isPetting = false
-    @State private var pageTouchPoint: CGPoint = .zero
+    @State private var petTouchPoint: CGPoint = .zero
     @State private var hearts: [HeartParticle] = []
     @State private var lastHapticTime: TimeInterval = 0
     @State private var lastHapticPoint: CGPoint = .zero
@@ -84,6 +83,10 @@ struct StreakPetView: View {
                                         }
                                     }
                                 }
+
+                                if isPetting {
+                                    PetHandView(point: petTouchPoint)
+                                }
                             }
                     }
                     .frame(maxWidth: .infinity)
@@ -104,6 +107,21 @@ struct StreakPetView: View {
                 .font(.system(.headline, design: .rounded).weight(.semibold))
                 .foregroundStyle(BreadTheme.text)
                 .padding(.top, 12)
+
+                // Calendar button — opens the view showing all finished sandwiches
+                NavigationLink(destination: CalendarView()) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "calendar")
+                        Text("Calendar")
+                    }
+                    .font(.system(.headline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(BreadTheme.text)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(BreadTheme.surface)
+                    .cornerRadius(10)
+                }
+                .padding(.top, 4)
 
                 Spacer(minLength: 12)
 
@@ -142,24 +160,6 @@ struct StreakPetView: View {
             .breadBackground()
             .fontDesign(.rounded)
             .tint(BreadTheme.accent)
-            // Track the finger across the whole page so the hand follows it
-            // even outside the potato area.
-            .simultaneousGesture(
-                DragGesture(minimumDistance: 0, coordinateSpace: .local)
-                    .onChanged { value in
-                        isTouching = true
-                        pageTouchPoint = value.location
-                    }
-                    .onEnded { _ in
-                        isTouching = false
-                        isPetting = false
-                    }
-            )
-            .overlay {
-                if isTouching {
-                    PetHandView(point: pageTouchPoint)
-                }
-            }
         }
         .onAppear {
             feedback.prepare()
@@ -187,6 +187,8 @@ struct StreakPetView: View {
             isPetting = false
             return
         }
+
+        petTouchPoint = point
 
         if !isPetting {
             isPetting = true

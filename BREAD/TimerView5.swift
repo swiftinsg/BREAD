@@ -21,6 +21,7 @@ struct TimerView5: View {
     
     // Returns to the ingredient selection screen
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.scenePhase) private var scenePhase
     
     // Every ingredient added in SelectView2 — one tab each
     var ingredients: [PlanIngredient]
@@ -261,10 +262,22 @@ struct TimerView5: View {
             .tint(BreadTheme.accent)
             .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $showPlating) {
-                PlatingView6(ingredients: droppedIngredients, onDone: onFinishPlan)
+                PlatingView6(ingredients: droppedIngredients, onDone: {
+                    showPlating = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.15, execute: onFinishPlan)
+                })
             }
             .onReceive(timer) { _ in
                 tick()
+            }
+            .onAppear {
+                UIApplication.shared.isIdleTimerDisabled = true
+            }
+            .onChange(of: scenePhase) { _, phase in
+                UIApplication.shared.isIdleTimerDisabled = phase == .active
+            }
+            .onDisappear {
+                UIApplication.shared.isIdleTimerDisabled = false
             }
             .alert("Time for a break?", isPresented: $showBreakReminder) {
                 Button("Got it", role: .cancel) { }
@@ -483,7 +496,7 @@ struct TimerView5: View {
         let seconds = totalSeconds % 60
         
         if hours > 0 {
-            return "\(hours)h \(minutes)m"
+            return "\(hours)h: \(minutes)min"
         }
         return "\(minutes):" + (seconds < 10 ? "0\(seconds)" : "\(seconds)")
     }

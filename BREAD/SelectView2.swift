@@ -16,6 +16,8 @@ struct SelectView2: View {
     @State private var droppedOrder: [UUID] = []
     @State private var selectedIngredientID: UUID?
 
+    private let maximumIngredientCount = 6
+
     private let columns = [
         GridItem(.flexible(), spacing: 16),
         GridItem(.flexible(), spacing: 16),
@@ -35,6 +37,8 @@ struct SelectView2: View {
                 CircleIconButton(systemName: "plus", filled: true) {
                     showChooseView3 = true
                 }
+                .disabled(ingredients.count >= maximumIngredientCount)
+                .opacity(ingredients.count >= maximumIngredientCount ? 0.4 : 1)
             }
             .padding(.horizontal)
 
@@ -85,6 +89,7 @@ struct SelectView2: View {
         .navigationBarBackButtonHidden(true)
         .fullScreenCover(isPresented: $showChooseView3) {
             ChooseView3 { ingredient in
+                guard ingredients.count < maximumIngredientCount else { return }
                 ingredients.append(ingredient)
             }
         }
@@ -243,7 +248,7 @@ struct IngredientDetailSheet: View {
                 }
 
                 // Study time chosen in ChooseView3, shown read-only as XX h : XX m
-                Text("\(ingredient.hours) h : \(ingredient.minutes) m")
+                Text("\(ingredient.hours)h: \(ingredient.minutes)min")
                     .font(.title3)
                     .foregroundStyle(BreadTheme.text)
                     .padding(.vertical, 14)
