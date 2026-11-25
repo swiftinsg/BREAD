@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UIKit
+import AVFoundation
 
 struct UpdateView7: View {
     let petSize: CGFloat = 200
@@ -40,6 +41,7 @@ struct UpdateView7: View {
     @State private var streakUpdated = false
     /// Shown when finishing again on a day the streak was already counted
     @State private var showDailyLimitAlert = false
+    @State private var eatingSoundPlayer: AVAudioPlayer?
     var sandwichLeft: CGFloat {
         CGFloat(totalBites - bitesTaken) / CGFloat(totalBites)
     }
@@ -121,10 +123,29 @@ struct UpdateView7: View {
         .onAppear {
             feedThePotato()
         }
+        .onDisappear {
+            eatingSoundPlayer?.stop()
+        }
         .alert("ALERT", isPresented: $showDailyLimitAlert) {
             Button("Okay", role: .cancel) { }
         } message: {
-            Text("Streak increased today.")
+            Text("Streak already increased today.")
+        }
+    }
+
+    private func playEatingSound() {
+        guard let soundURL = Bundle.main.url(
+            forResource: "nom-nom-nom_gPJiWn4",
+            withExtension: "mp3"
+        ) else { return }
+
+        do {
+            let player = try AVAudioPlayer(contentsOf: soundURL)
+            player.prepareToPlay()
+            eatingSoundPlayer = player
+            player.play()
+        } catch {
+            eatingSoundPlayer = nil
         }
     }
 
@@ -155,6 +176,11 @@ struct UpdateView7: View {
                 }
                 chompHaptic.impactOccurred(intensity: 0.8)
                 try? await Task.sleep(for: .milliseconds(120))
+
+                // Play the sound as the first bite lands.
+                if bite == 0 {
+                    playEatingSound()
+                }
 
                 // Chomp: take the bite, pop the sandwich, then spring back
                 withAnimation(.spring(response: 0.26, dampingFraction: 0.5)) {
