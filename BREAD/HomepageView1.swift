@@ -453,12 +453,14 @@ private struct SandwichCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120, height: 120)
+                    .offset(y:15)
                     .zIndex(0)
                 
                 Image("bread up")
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120, height: 120)
+                    .offset(y:10)
                     .zIndex(1)
 
                 ForEach(Array(sandwich.ingredientAssets.enumerated()), id: \.offset) { item in
