@@ -25,6 +25,11 @@ struct StreakPetView: View {
         streakDays == 1 ? "1 day streak" : "\(streakDays) day streak"
     }
 
+    private var streakIncreasedToday: Bool {
+        guard lastStreakIncrease > 0 else { return false }
+        return Calendar.current.isDateInToday(Date(timeIntervalSince1970: lastStreakIncrease))
+    }
+
     /// The existing assets are named `potato normal` / `potato happy`, while
     /// other views use `potato` as the base name. Fall back so either works.
     private var happyPetImageName: String {
@@ -94,7 +99,7 @@ struct StreakPetView: View {
                 .frame(height: 260)
                 .accessibilityLabel("Your streak pet")
 
-                Text("I'm hungry...")
+                Text(streakIncreasedToday ? "Thanks for feeding me" : "I'm hungry...")
                     .font(.system(.subheadline, design: .rounded).weight(.medium))
                     .foregroundStyle(BreadTheme.secondaryText)
                     .padding(.top, 2)
@@ -449,6 +454,12 @@ private struct SandwichCard: View {
                     .scaledToFit()
                     .frame(width: 120, height: 120)
                     .zIndex(0)
+                
+                Image("bread up")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .zIndex(1)
 
                 ForEach(Array(sandwich.ingredientAssets.enumerated()), id: \.offset) { item in
                     let index = item.offset
@@ -459,7 +470,7 @@ private struct SandwichCard: View {
                             .frame(width: 90, height: 90)
                             .rotationEffect(.degrees(0))
                             .offset(y: -CGFloat(index) * 8)
-                            .zIndex(1)
+                            .zIndex(2)
                     }
                 }
 
@@ -467,7 +478,7 @@ private struct SandwichCard: View {
                     .resizable()
                     .scaledToFit()
                     .frame(width: 120, height: 120)
-                    .zIndex(2)
+                    .zIndex(3)
             }
             .frame(height: 120)
 
