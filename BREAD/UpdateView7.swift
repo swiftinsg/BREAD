@@ -24,6 +24,7 @@ struct UpdateView7: View {
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     @State private var bitesTaken = 0
+    @State private var biteHapticTrigger = 0
     @State private var isChomping = false
     @State private var hasGulped = false
     @State private var petStatus = "eat"
@@ -117,6 +118,7 @@ struct UpdateView7: View {
         .breadBackground()
         .fontDesign(.rounded)
         .tint(BreadTheme.accent)
+        .sensoryFeedback(.impact(weight: .heavy, intensity: 1.0), trigger: biteHapticTrigger)
         // Hide the navigation bar so no back arrow shows while feeding
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -139,6 +141,10 @@ struct UpdateView7: View {
         ) else { return }
 
         do {
+            let audioSession = AVAudioSession.sharedInstance()
+            try audioSession.setCategory(.playback, mode: .default, options: [.mixWithOthers])
+            try audioSession.setActive(true)
+
             let player = try AVAudioPlayer(contentsOf: soundURL)
             player.prepareToPlay()
             eatingSoundPlayer = player
@@ -172,8 +178,6 @@ struct UpdateView7: View {
 
         Task {
             let remainingBites = totalBites - bitesTaken
-            let chompHaptic = UIImpactFeedbackGenerator(style: .medium)
-            chompHaptic.prepare()
 
             for bite in 0..<remainingBites {
                 // Lean in, open wide, and show the "Nom!" bubble
@@ -181,7 +185,6 @@ struct UpdateView7: View {
                     isChomping = true
                     chompRotation = bite.isMultiple(of: 2) ? -4 : 4
                 }
-                chompHaptic.impactOccurred(intensity: min(1.0, 0.45 + 0.18 * Double(bite)))
                 try? await Task.sleep(for: .milliseconds(120))
 
                 // Play the sound as the first bite lands.
@@ -190,9 +193,14 @@ struct UpdateView7: View {
                 }
 
                 // Chomp: take the bite, pop the sandwich, then spring back
-                withAnimation(.spring(response: 0.26, dampingFraction: 0.5)) {
+                withAnimation(
+                    .spring(response: 0.26, dampingFraction: 0.5),
+                    completionCriteria: .logicallyComplete
+                ) {
                     bitesTaken += 1
                     sandwichPop = true
+                } completion: {
+                    biteHapticTrigger += 1
                 }
                 try? await Task.sleep(for: .milliseconds(90))
 
