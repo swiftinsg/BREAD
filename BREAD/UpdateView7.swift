@@ -161,6 +161,14 @@ struct UpdateView7: View {
         lastStreakIncrease = updatedStreak.lastIncrease
         let alreadyCountedToday = updatedStreak.alreadyCountedToday
 
+        // Remember this sandwich for the Analytics screen
+        SandwichStore.add(PastSandwich(
+            id: UUID(),
+            date: Date(),
+            ingredientNames: ingredients.map { $0.name },
+            ingredientAssets: ingredients.map { $0.topping.assetName }
+        ))
+
         Task {
             let remainingBites = totalBites - bitesTaken
             let chompHaptic = UIImpactFeedbackGenerator(style: .medium)

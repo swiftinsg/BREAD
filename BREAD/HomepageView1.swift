@@ -107,6 +107,18 @@ struct StreakPetView: View {
 
                 Spacer(minLength: 12)
 
+                NavigationLink(destination: AnalyticsView()) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chart.bar.fill")
+                        Text("Analytics")
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+//                .buttonStyle(BreadPrimaryButtonStyle())
+                .tint(.black)
+                
+                .padding()
+                
                 NavigationLink(destination: SelectView2()) {
                     HStack(spacing: 8) {
                         Text("Start Plan")
@@ -116,6 +128,8 @@ struct StreakPetView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .buttonStyle(BreadPrimaryButtonStyle())
+                
+
 
                 Text("Study to get ingredients and feed Mr Potato!")
                     .font(.footnote.weight(.medium))
