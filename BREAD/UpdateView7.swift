@@ -38,7 +38,7 @@ struct UpdateView7: View {
     /// Prevents the feeding task from being started twice by repeated onAppear
     @State private var hasStartedFeeding = false
     /// True once the streak has actually been updated, so Done can't be tapped early
-    @State private var streakUpdated = false
+    // Completion is recorded as soon as the feeding screen appears.
     /// Shown when finishing again on a day the streak was already counted
     @State private var showDailyLimitAlert = false
     @State private var eatingSoundPlayer: AVAudioPlayer?
@@ -110,8 +110,6 @@ struct UpdateView7: View {
                 .frame(maxWidth: .infinity)
             }
             .buttonStyle(BreadPrimaryButtonStyle())
-            .disabled(!streakUpdated)
-            .opacity(streakUpdated ? 1 : 0.4)
         }
         .padding(20)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -135,7 +133,7 @@ struct UpdateView7: View {
 
     private func playEatingSound() {
         guard let soundURL = Bundle.main.url(
-            forResource: "nom-nom-nom_gPJiWn4",
+            forResource: "freesound_community-eating-chips-70602-[AudioTrimmer.com]",
             withExtension: "mp3"
         ) else { return }
 
@@ -226,7 +224,7 @@ struct UpdateView7: View {
 
             // Feeding is done, so the Done button can be enabled.
             // The streak itself was already registered when feeding began.
-            streakUpdated = true
+            // The completion is already recorded above.
 
             // Let the user know why the number didn't change
             if alreadyCountedToday {
