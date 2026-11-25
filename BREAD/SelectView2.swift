@@ -42,6 +42,13 @@ struct SelectView2: View {
             }
             .padding(.horizontal)
 
+            Text("\(ingredients.count) out of \(maximumIngredientCount) ingredients selected")
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(BreadTheme.secondaryText)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.horizontal)
+                .padding(.top, 12)
+
             // Ingredients added from ChooseView3
             if ingredients.isEmpty {
                 ContentUnavailableView {
