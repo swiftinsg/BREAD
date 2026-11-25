@@ -198,14 +198,8 @@ struct UpdateView7: View {
             }
             
 
-            // Finished the sandwich — the streak can only go up once a day,
-            // and resets to 1 if a whole day was missed.
-            let updatedStreak = StreakStore.registerCompletion(
-                currentDays: streakDays,
-                lastIncrease: lastStreakIncrease
-            )
-            streakDays = updatedStreak.days
-            lastStreakIncrease = updatedStreak.lastIncrease
+            // Feeding is done, so the Done button can be enabled.
+            // The streak itself was already registered when feeding began.
             streakUpdated = true
 
             // Let the user know why the number didn't change
