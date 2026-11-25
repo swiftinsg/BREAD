@@ -128,6 +128,16 @@ struct UpdateView7: View {
         guard !hasStartedFeeding else { return }
         hasStartedFeeding = true
 
+        // Count the streak as soon as the plan is finished, rather than after
+        // the feeding animation, so tapping "Done" early can't skip it.
+        let updatedStreak = StreakStore.registerCompletion(
+            currentDays: streakDays,
+            lastIncrease: lastStreakIncrease
+        )
+        streakDays = updatedStreak.days
+        lastStreakIncrease = updatedStreak.lastIncrease
+        let alreadyCountedToday = updatedStreak.alreadyCountedToday
+
         Task {
             let remainingBites = totalBites - bitesTaken
             let chompHaptic = UIImpactFeedbackGenerator(style: .soft)
@@ -184,17 +194,8 @@ struct UpdateView7: View {
             }
             
 
-            // Finished the sandwich — the streak can only go up once a day,
-            // and resets to 1 if a whole day was missed.
-            let updatedStreak = StreakStore.registerCompletion(
-                currentDays: streakDays,
-                lastIncrease: lastStreakIncrease
-            )
-            streakDays = updatedStreak.days
-            lastStreakIncrease = updatedStreak.lastIncrease
-
             // Let the user know why the number didn't change
-            if updatedStreak.alreadyCountedToday {
+            if alreadyCountedToday {
                 showDailyLimitAlert = true
             }
         }

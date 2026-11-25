@@ -13,7 +13,7 @@ struct StreakPetView: View {
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     private var streakLabel: String {
-        streakDays == 1 ? "0 day streak" : "\(streakDays) day streak"
+        streakDays == 1 ? "1 day streak" : "\(streakDays) day streak"
     }
 
     var body: some View {
