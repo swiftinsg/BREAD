@@ -24,6 +24,7 @@ struct UpdateView7: View {
     @AppStorage("lastStreakIncrease") private var lastStreakIncrease: Double = 0
 
     @State private var bitesTaken = 0
+    @State private var biteHapticTrigger = 0
     @State private var isChomping = false
     @State private var hasGulped = false
     @State private var petStatus = "eat"
@@ -117,7 +118,7 @@ struct UpdateView7: View {
         .breadBackground()
         .fontDesign(.rounded)
         .tint(BreadTheme.accent)
-        .sensoryFeedback(.impact(weight: .medium, intensity: 0.8), trigger: bitesTaken)
+        .sensoryFeedback(.impact(weight: .heavy, intensity: 1.0), trigger: biteHapticTrigger)
         // Hide the navigation bar so no back arrow shows while feeding
         .toolbar(.hidden, for: .navigationBar)
         .onAppear {
@@ -192,9 +193,14 @@ struct UpdateView7: View {
                 }
 
                 // Chomp: take the bite, pop the sandwich, then spring back
-                withAnimation(.spring(response: 0.26, dampingFraction: 0.5)) {
+                withAnimation(
+                    .spring(response: 0.26, dampingFraction: 0.5),
+                    completionCriteria: .logicallyComplete
+                ) {
                     bitesTaken += 1
                     sandwichPop = true
+                } completion: {
+                    biteHapticTrigger += 1
                 }
                 try? await Task.sleep(for: .milliseconds(90))
 
