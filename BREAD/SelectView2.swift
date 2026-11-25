@@ -47,7 +47,7 @@ struct SelectView2: View {
                 ContentUnavailableView {
                     Label("No Ingredients Yet", systemImage: "takeoutbag.and.cup.and.straw")
                 } description: {
-                    Text("Click the + button to add ingredients in your studywich!")
+                    Text("Click the + button to add ingredients in your studywich! Select up to 6 ingredients.")
                 }
             } else {
                 ScrollView {

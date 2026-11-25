@@ -110,16 +110,16 @@ struct StreakPetView: View {
 
                 Spacer(minLength: 12)
 
-                NavigationLink(destination: AnalyticsView()) {
+                NavigationLink {
+                    AnalyticsView()
+                } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "chart.bar.fill")
                         Text("Analytics")
                     }
                     .frame(maxWidth: .infinity)
                 }
-//                .buttonStyle(BreadPrimaryButtonStyle())
                 .tint(.orange)
-                
                 .padding()
                 
                 NavigationLink(destination: SelectView2()) {
@@ -383,3 +383,105 @@ private struct PetHandView: View {
 #Preview {
     StreakPetView()
 }
+private struct AnalyticsSandwich: Identifiable, Decodable {
+    let id: UUID
+    let date: Date
+    let ingredientNames: [String]
+    let ingredientAssets: [String?]
+}
+
+struct AnalyticsView: View {
+    @State private var sandwiches = Self.loadSandwiches()
+
+    private static func loadSandwiches() -> [AnalyticsSandwich] {
+        guard let data = UserDefaults.standard.data(forKey: "pastSandwiches") else { return [] }
+        return (try? JSONDecoder().decode([AnalyticsSandwich].self, from: data)) ?? []
+    }
+
+    private let columns = [
+        GridItem(.flexible(), spacing: 16),
+        GridItem(.flexible(), spacing: 16),
+    ]
+
+    var body: some View {
+        NavigationStack {
+            ScrollView {
+                if sandwiches.isEmpty {
+                    ContentUnavailableView {
+                        Label("No sandwiches yet", systemImage: "takeoutbag.and.cup.and.straw")
+                    } description: {
+                        Text("Finish a plan to see your past sandwiches here.")
+                    }
+                    .padding(.top, 60)
+                } else {
+                    LazyVGrid(columns: columns, spacing: 16) {
+                        ForEach(sandwiches) { sandwich in
+                            SandwichCard(sandwich: sandwich)
+                        }
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Analytics")
+            .breadBackground()
+            .fontDesign(.rounded)
+            .tint(BreadTheme.accent)
+            .onAppear { sandwiches = Self.loadSandwiches() }
+        }
+    }
+}
+
+private struct SandwichCard: View {
+    let sandwich: AnalyticsSandwich
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .short
+        return formatter
+    }()
+
+    var body: some View {
+        VStack(spacing: 10) {
+            ZStack {
+                Image("plate")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .zIndex(0)
+
+                ForEach(Array(sandwich.ingredientAssets.enumerated()), id: \.offset) { item in
+                    let index = item.offset
+                    if let asset = item.element {
+                        Image(asset)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 90, height: 90)
+                            .rotationEffect(.degrees(0))
+                            .offset(y: -CGFloat(index) * 8)
+                            .zIndex(1)
+                    }
+                }
+
+                Image("bread up")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 120, height: 120)
+                    .zIndex(2)
+            }
+            .frame(height: 120)
+
+            Text(Self.dateFormatter.string(from: sandwich.date))
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(BreadTheme.secondaryText)
+                .multilineTextAlignment(.center)
+
+            Text("\(sandwich.ingredientNames.count) ingredient\(sandwich.ingredientNames.count == 1 ? "" : "s")")
+                .font(.caption2)
+                .foregroundStyle(BreadTheme.text)
+        }
+        .padding(12)
+        .breadCard(cornerRadius: 20, padding: 0)
+    }
+}
+

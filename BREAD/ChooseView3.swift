@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct Topping: Identifiable, Codable {
+struct Topping: Identifiable {
     let name: String
     var icon: String? = nil
     var assetName: String? = nil
@@ -16,7 +16,7 @@ struct Topping: Identifiable, Codable {
 }
 
 /// An ingredient the user added to a plan, with their own name and study time.
-struct PlanIngredient: Identifiable, Codable {
+struct PlanIngredient: Identifiable {
     let id = UUID()
     let topping: Topping
     var name: String
@@ -189,7 +189,7 @@ struct ToppingDetailSheet: View {
                     TextField(
                         "",
                         text: $nameInput,
-                        prompt: Text("What are we working on today?").foregroundStyle(BreadTheme.secondaryText)
+                        prompt: Text("Enter subject/task:").foregroundStyle(BreadTheme.secondaryText)
                     )
                     .font(.body.weight(.medium))
                     .foregroundStyle(BreadTheme.text)
