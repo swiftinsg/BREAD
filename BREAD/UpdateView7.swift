@@ -9,13 +9,6 @@ import SwiftUI
 import UIKit
 import AVFoundation
 
-struct FinishedPlan: Identifiable, Codable {
-    let id = UUID()
-    var date: Date
-    var ingredients: [PlanIngredient]
-    let studyTimeMinutes: Int
-}
-
 struct UpdateView7: View {
     let petSize: CGFloat = 200
     let sandwichSize: CGFloat = 100
@@ -242,15 +235,6 @@ struct UpdateView7: View {
             // The streak itself was already registered when feeding began.
             // The completion is already recorded above.
 
-            // Record this finished plan for the calendar.
-            let studyMinutes = totalBites - bitesTaken
-            var saved = UserDefaults.standard.data(forKey: "finishedPlans")
-            var plans: [FinishedPlan] = []
-            if let data = saved {
-                plans = (try? JSONDecoder().decode([FinishedPlan].self, from: data)) ?? []
-            }
-            plans.append(FinishedPlan(date: Date(), ingredients: ingredients, studyTimeMinutes: studyMinutes))
-            UserDefaults.standard.setValue(try? JSONEncoder().encode(plans), forKey: "finishedPlans")
 
             // Let the user know why the number didn't change
             if alreadyCountedToday {

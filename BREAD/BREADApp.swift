@@ -13,6 +13,11 @@ extension Color {
 
 @main
 struct BREADApp: App {
+    init() {
+        // Remove history saved only for the retired calendar screen.
+        UserDefaults.standard.removeObject(forKey: "finishedPlans")
+    }
+
     var body: some Scene {
         WindowGroup {
             // Launch into the homepage; "Start Plan" pushes the ingredient grid

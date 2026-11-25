@@ -108,21 +108,6 @@ struct StreakPetView: View {
                 .foregroundStyle(BreadTheme.text)
                 .padding(.top, 12)
 
-                // Calendar button — opens the view showing all finished sandwiches
-                NavigationLink(destination: CalendarView()) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "calendar")
-                        Text("Calendar")
-                    }
-                    .font(.system(.headline, design: .rounded).weight(.semibold))
-                    .foregroundStyle(BreadTheme.text)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(BreadTheme.surface)
-                    .cornerRadius(10)
-                }
-                .padding(.top, 4)
-
                 Spacer(minLength: 12)
 
                 NavigationLink(destination: AnalyticsView()) {
